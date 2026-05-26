@@ -256,7 +256,7 @@
       transition: color 0.15s;
     }
 
-    .staff-card:hover .staff-card-edit { color: var(--grey-400); }
+    .staff-card .staff-card-edit { color: var(--grey-400); }
     .staff-card-edit:hover { color: var(--primary) !important; }
 
     .staff-card-delete {
@@ -533,7 +533,7 @@
 <div class="view" id="viewDetail">
   <div class="detail-header">
     <button class="btn btn-secondary" onclick="showDashboard()">← Back</button>
-    <button class="btn btn-ghost" onclick="openEditModal(null, state.selectedId)" style="font-size:13px">✎ Edit</button>
+    <button class="btn btn-secondary" onclick="openEditModal(null, state.selectedId)">✎ Edit Details</button>
     <div class="detail-header-info">
       <h2 id="detailName"></h2>
       <div class="detail-header-meta" id="detailMeta"></div>
