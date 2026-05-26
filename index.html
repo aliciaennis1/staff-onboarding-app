@@ -659,24 +659,22 @@
     <div class="form-group">
       <label>Role Type <span style="font-weight:400;text-transform:none;color:var(--grey-400)">(select all that apply)</span></label>
       <div class="role-toggles">
-        <label class="role-toggle" id="toggleMgmt" onclick="toggleRole('mgmt')">
-          <input type="checkbox" id="inputMgmt" />
+        <div class="role-toggle" id="toggleMgmt" onclick="toggleRole('mgmt')">
           <span class="toggle-icon">🏢</span>
           <span class="toggle-text">
             <strong>Management</strong>
             <span>Requires 128 Check</span>
           </span>
           <span class="toggle-check" id="checkMgmt"></span>
-        </label>
-        <label class="role-toggle" id="toggleTeach" onclick="toggleRole('teach')">
-          <input type="checkbox" id="inputTeach" />
+        </div>
+        <div class="role-toggle" id="toggleTeach" onclick="toggleRole('teach')">
           <span class="toggle-icon">🎓</span>
           <span class="toggle-text">
             <strong>Teaching</strong>
             <span>Requires Prohibition Check</span>
           </span>
           <span class="toggle-check" id="checkTeach"></span>
-        </label>
+        </div>
       </div>
     </div>
     <div class="modal-actions">
