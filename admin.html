@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Staff Onboarding Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f3f4f6; color: #1f2937; }
+
+  .header { background: #3d4e1f; color: #fff; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo { height: 40px; width: auto; border: 2px solid #fff; border-radius: 6px; padding: 3px; background: #fff; }
+  .header h1 { font-size: 16px; font-weight: 700; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .user-chip { background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; font-size: 13px; }
+  .btn-header { background: #fff; color: #3d4e1f; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+  .btn-header:hover { background: #e8f0dc; }
+
+  .page { max-width: 1000px; margin: 32px auto; padding: 0 24px 48px; }
+
+  .card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 28px; margin-bottom: 24px; }
+  .card h2 { font-size: 16px; font-weight: 700; color: #4F6228; margin-bottom: 6px; }
+  .card .sub { font-size: 13px; color: #6b7280; margin-bottom: 22px; }
+
+  .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #4b5563; }
+  .form-group input, .form-group select { padding: 9px 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #1f2937; }
+  .form-group input:focus, .form-group select:focus { border-color: #4F6228; outline: none; box-shadow: 0 0 0 3px rgba(79,98,40,0.1); }
+  .btn-add { background: #4F6228; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; align-self: flex-end; }
+  .btn-add:hover { background: #3d4e1f; }
+  .btn-add:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .staff-table { width: 100%; border-collapse: collapse; }
+  .staff-table thead tr { background: #4F6228; color: #fff; }
+  .staff-table th { padding: 11px 14px; font-size: 12px; text-align: left; font-weight: 600; }
+  .staff-table td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .staff-table tbody tr:last-child td { border-bottom: none; }
+  .staff-table tbody tr:hover td { background: #f9fdf5; }
+  .staff-name { font-weight: 600; }
+  .staff-email { color: #4b5563; font-size: 12px; }
+
+  .role-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .role-Admin   { background: #4F6228; color: #fff; }
+  .role-HR      { background: #dbeafe; color: #1d4ed8; }
+  .role-Senior  { background: #ede9fe; color: #6d28d9; }
+  .role-Line    { background: #fef3c7; color: #d97706; }
+  .role-Support { background: #f3f4f6; color: #6b7280; }
+
+  .actions { display: flex; gap: 8px; align-items: center; }
+  .role-select { padding: 5px 8px; border: 1.5px solid #4F6228; border-radius: 6px; font-size: 12px; }
+  .btn-role   { background: transparent; border: 1.5px solid #4F6228; color: #4F6228; border-radius: 5px; padding: 4px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-role:hover   { background: #4F6228; color: #fff; }
+  .btn-remove { background: transparent; border: 1.5px solid #dc2626; color: #dc2626; border-radius: 5px; padding: 4px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-remove:hover { background: #dc2626; color: #fff; }
+  .no-action { font-size: 11px; color: #9ca3af; }
+
+  .loading-row td, .empty-row td { text-align: center; padding: 28px; color: #9ca3af; font-size: 13px; }
+
+  .notif { position: fixed; bottom: 20px; right: 20px; background: #4F6228; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .notif.show { opacity: 1; }
+  .notif.error { background: #dc2626; }
+
+  .auth-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #f3f4f6; z-index: 100; }
+  .auth-box { background: #fff; border-radius: 14px; padding: 40px; max-width: 380px; width: 90%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+  .auth-box h2 { color: #dc2626; margin-bottom: 12px; font-size: 18px; }
+  .auth-box p { font-size: 13px; color: #6b7280; }
+  .spinner { width: 36px; height: 36px; border: 4px solid #e8f0dc; border-top-color: #4F6228; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .add-form { grid-template-columns: 1fr; }
+    .header h1 { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+    <div class="spinner"></div>
+    <p style="color:#9ca3af">Checking access...</p>
+  </div>
+</div>
+
+<div id="mainPage" style="display:none">
+  <div class="header">
+    <div class="header-left">
+      <img src="logo.png" alt="Adventure Wellbeing School" class="header-logo" />
+      <h1>Admin — Staff Onboarding Tracker</h1>
+    </div>
+    <div class="header-right">
+      <span class="user-chip" id="userChip"></span>
+      <a class="btn-header" href="/">← Dashboard</a>
+      <a class="btn-header" href="/.auth/logout">Sign Out</a>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <div class="card">
+      <h2>Add Team Member</h2>
+      <p class="sub">Add staff who should be able to sign in and use the onboarding tracker. They must use their <strong>@awschools.com</strong> Microsoft 365 account.</p>
+      <div class="add-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="newName" placeholder="Jane Smith" />
+        </div>
+        <div class="form-group">
+          <label>Email (@awschools.com)</label>
+          <input type="email" id="newEmail" placeholder="jane.smith@awschools.com" />
+        </div>
+        <div class="form-group">
+          <label>Role</label>
+          <select id="newRole">
+            <option>HR Manager</option>
+            <option>Senior Leader</option>
+            <option>Line Manager</option>
+            <option>Support Staff</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <button class="btn-add" id="btnAdd" onclick="addTeamMember()">Add Team Member</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Current Team Members</h2>
+      <table class="staff-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Last Sign-in</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="teamTable">
+          <tr class="loading-row"><td colspan="5">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+const ROLES = ["HR Manager", "Senior Leader", "Line Manager", "Support Staff"];
+
+function roleBadgeClass(role) {
+  if (role === "Admin")         return "role-Admin";
+  if (role === "HR Manager")    return "role-HR";
+  if (role === "Senior Leader") return "role-Senior";
+  if (role === "Line Manager")  return "role-Line";
+  return "role-Support";
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-GB") + " " + new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+}
+
+function esc(s) {
+  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+async function init() {
+  try {
+    const meRes = await fetch("/.auth/me");
+    const meData = await meRes.json();
+    const principal = meData.clientPrincipal;
+
+    if (!principal) {
+      window.location.href = "/.auth/login/aad?post_login_redirect_uri=/admin.html";
+      return;
+    }
+
+    const email = (principal.userDetails || "").toLowerCase().trim();
+    if (email !== "alicia.ennis@awschools.com") {
+      document.getElementById("authScreen").innerHTML = `
+        <div class="auth-box">
+          <h2>Access Denied</h2>
+          <p>Only the system administrator can access this page.</p>
+          <br><a href="/">← Back to Dashboard</a>
+        </div>`;
+      return;
+    }
+
+    document.getElementById("userChip").textContent = "Alicia Ennis (Admin)";
+    document.getElementById("authScreen").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+    await loadTeam();
+  } catch(e) {
+    document.getElementById("authScreen").innerHTML = `<div class="auth-box"><h2>Error</h2><p>Could not load the page. Please try again.</p></div>`;
+  }
+}
+
+async function loadTeam() {
+  document.getElementById("teamTable").innerHTML = '<tr class="loading-row"><td colspan="5">Loading...</td></tr>';
+  try {
+    const res = await fetch("/api/users");
+    const users = await res.json();
+    if (!users.length) {
+      document.getElementById("teamTable").innerHTML = '<tr class="empty-row"><td colspan="5">No team members added yet.</td></tr>';
+      return;
+    }
+    document.getElementById("teamTable").innerHTML = users.map(u => `
+      <tr id="row-${esc(u.email)}">
+        <td class="staff-name">${esc(u.name || u.email)}</td>
+        <td class="staff-email">${esc(u.email)}</td>
+        <td><span class="role-badge ${roleBadgeClass(u.role)}">${esc(u.role || "Support Staff")}</span></td>
+        <td>${fmtDate(u.lastSignIn)}</td>
+        <td>
+          <div class="actions">
+            ${u.isAdmin
+              ? `<span class="no-action">System Admin</span>`
+              : `<select class="role-select" id="rolesel-${esc(u.email)}">${ROLES.map(r => `<option${r === u.role ? " selected" : ""}>${esc(r)}</option>`).join("")}</select>
+                 <button class="btn-role" onclick="changeRole('${esc(u.email)}')">Save</button>
+                 <button class="btn-remove" onclick="removeMember('${esc(u.email)}')">Remove</button>`
+            }
+          </div>
+        </td>
+      </tr>`).join("");
+  } catch(e) {
+    document.getElementById("teamTable").innerHTML = '<tr class="empty-row"><td colspan="5">Failed to load team members.</td></tr>';
+  }
+}
+
+async function addTeamMember() {
+  const name  = document.getElementById("newName").value.trim();
+  const email = document.getElementById("newEmail").value.trim().toLowerCase();
+  const role  = document.getElementById("newRole").value;
+
+  if (!name)  { notifyError("Please enter a full name."); return; }
+  if (!email.endsWith("@awschools.com")) { notifyError("Email must be an @awschools.com address."); return; }
+
+  const btn = document.getElementById("btnAdd");
+  btn.disabled = true; btn.textContent = "Adding...";
+  try {
+    const res = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, role })
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
+    document.getElementById("newName").value = "";
+    document.getElementById("newEmail").value = "";
+    notify(name + " added successfully");
+    await loadTeam();
+  } catch(e) {
+    notifyError(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Add Team Member";
+  }
+}
+
+async function changeRole(email) {
+  const role = document.getElementById("rolesel-" + email).value;
+  try {
+    const res = await fetch("/api/users", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, role })
+    });
+    if (!res.ok) throw new Error("Failed");
+    notify("Role updated");
+    await loadTeam();
+  } catch(e) {
+    notifyError("Failed to update role.");
+  }
+}
+
+async function removeMember(email) {
+  if (!confirm("Remove access for " + email + "? They will no longer be able to sign in.")) return;
+  try {
+    const res = await fetch("/api/users?email=" + encodeURIComponent(email), { method: "DELETE" });
+    if (!res.ok) throw new Error("Failed");
+    notify(email + " removed");
+    await loadTeam();
+  } catch(e) {
+    notifyError("Failed to remove member.");
+  }
+}
+
+function notify(msg) {
+  const el = document.getElementById("notif");
+  el.className = "notif show"; el.textContent = "✓ " + msg;
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2500);
+}
+function notifyError(msg) {
+  const el = document.getElementById("notif");
+  el.className = "notif error show"; el.textContent = "✗ " + msg;
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+init();
+</script>
+</body>
+</html>

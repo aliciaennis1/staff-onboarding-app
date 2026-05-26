@@ -1,0 +1,8 @@
+{
+  "name": "onboarding-api",
+  "version": "1.0.0",
+  "description": "AWS Staff Onboarding Tracker API",
+  "dependencies": {
+    "@azure/data-tables": "^13.2.2"
+  }
+}

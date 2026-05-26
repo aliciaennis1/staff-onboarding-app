@@ -507,24 +507,105 @@
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--grey-300); border-radius: 999px; }
+
+    /* ── Auth screens ── */
+    .auth-screen {
+      position: fixed; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      background: var(--grey-100); z-index: 200; flex-direction: column; gap: 16px;
+    }
+
+    .auth-card {
+      background: #fff; border-radius: 14px; padding: 40px 36px;
+      max-width: 400px; width: 90%; text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+
+    .auth-card img { height: 56px; margin-bottom: 18px; }
+    .auth-card h2 { font-size: 18px; font-weight: 700; color: var(--grey-800); margin-bottom: 8px; }
+    .auth-card p  { font-size: 13px; color: var(--grey-400); margin-bottom: 20px; line-height: 1.5; }
+
+    .btn-ms {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 11px 22px; background: #0078d4; color: #fff;
+      border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+    }
+    .btn-ms:hover { background: #006cbf; }
+
+    .spinner {
+      width: 36px; height: 36px; border: 4px solid var(--primary-bg);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .topbar-user { display: flex; align-items: center; gap: 10px; }
+    .user-chip { background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 999px; font-size: 12px; color: #fff; }
+
+    /* ── Notification ── */
+    .notif {
+      position: fixed; bottom: 20px; right: 20px;
+      background: var(--primary); color: #fff;
+      padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      z-index: 300; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .notif.show { opacity: 1; }
+    .notif.error { background: #dc2626; }
   </style>
 </head>
 <body>
 
+<!-- Auth screen -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <img src="logo.png" alt="Adventure Wellbeing School" />
+    <h2>Staff Onboarding Tracker</h2>
+    <p>Sign in with your Adventure Wellbeing School Microsoft 365 account to continue.</p>
+    <a class="btn-ms" href="/.auth/login/aad?post_login_redirect_uri=/">
+      <svg width="18" height="18" viewBox="0 0 21 21" fill="none"><rect x="1" y="1" width="9" height="9" fill="#f25022"/><rect x="11" y="1" width="9" height="9" fill="#7fba00"/><rect x="1" y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+      Sign in with Microsoft
+    </a>
+  </div>
+</div>
+
+<!-- Loading screen -->
+<div id="loadingScreen" class="auth-screen" style="display:none">
+  <div class="auth-card">
+    <div class="spinner"></div>
+    <p style="color:var(--grey-400)">Loading...</p>
+  </div>
+</div>
+
+<!-- Denied screen -->
+<div id="deniedScreen" class="auth-screen" style="display:none">
+  <div class="auth-card">
+    <img src="logo.png" alt="Adventure Wellbeing School" />
+    <h2>Access Denied</h2>
+    <p id="deniedMsg">You don't have access to this app. Please contact your administrator.</p>
+    <a class="btn-ms" style="background:#6b7280" href="/.auth/logout">Sign Out</a>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
 <!-- Top bar -->
-<header class="topbar">
+<header class="topbar" id="appTopbar" style="display:none">
   <img src="logo.png" alt="Adventure Wellbeing School" class="topbar-logo" />
   <div class="topbar-title">
     <h1>Staff Onboarding Tracker</h1>
     <p>Safer Recruitment Documents</p>
   </div>
-  <div class="topbar-actions" id="topbarActions">
+  <div class="topbar-user">
+    <span class="user-chip" id="userChip"></span>
+    <a id="adminLink" href="/admin.html" class="btn btn-ghost" style="display:none;font-size:12px">⚙ Admin</a>
     <button class="btn btn-ghost" onclick="openModal()">+ Add Staff Member</button>
+    <a class="btn btn-ghost" style="font-size:12px" href="/.auth/logout">Sign Out</a>
   </div>
 </header>
 
 <!-- Dashboard view -->
-<div class="view active" id="viewDashboard">
+<div class="view" id="viewDashboard" style="display:none">
   <div class="dashboard">
     <div class="dash-stats" id="dashStats"></div>
     <div class="dash-section-title" id="dashSectionTitle"></div>
@@ -596,6 +677,72 @@
 </div>
 
 <script>
+// ── Auth ──
+async function init() {
+  showScreen('loading');
+  try {
+    const meRes  = await fetch('/.auth/me');
+    const meData = await meRes.json();
+    const principal = meData.clientPrincipal;
+
+    if (!principal) { showScreen('login'); return; }
+
+    const res  = await fetch('/api/checkAccess');
+    const user = await res.json();
+
+    if (!user.hasAccess) {
+      document.getElementById('deniedMsg').textContent =
+        user.error || "You don't have access. Please contact your administrator.";
+      showScreen('denied');
+      return;
+    }
+
+    document.getElementById('userChip').textContent = user.name || user.email;
+    if (user.isAdmin) document.getElementById('adminLink').style.display = 'inline-flex';
+
+    showScreen('app');
+    await loadData();
+    renderDashboard();
+  } catch(e) {
+    document.getElementById('deniedMsg').textContent = 'Could not connect. Please refresh the page.';
+    showScreen('denied');
+  }
+}
+
+function showScreen(screen) {
+  document.getElementById('authScreen').style.display    = screen === 'login'   ? 'flex' : 'none';
+  document.getElementById('loadingScreen').style.display = screen === 'loading' ? 'flex' : 'none';
+  document.getElementById('deniedScreen').style.display  = screen === 'denied'  ? 'flex' : 'none';
+  document.getElementById('appTopbar').style.display     = screen === 'app'     ? 'flex' : 'none';
+  document.getElementById('viewDashboard').style.display = screen === 'app'     ? 'block' : 'none';
+  document.getElementById('viewDetail').style.display    = 'none';
+}
+
+// ── API helpers ──
+async function apiCall(method, path, body) {
+  const opts = { method, headers: {} };
+  if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  const res = await fetch(path, opts);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function notify(msg, isError) {
+  const el = document.getElementById('notif');
+  el.className = 'notif show' + (isError ? ' error' : '');
+  el.textContent = (isError ? '✗ ' : '✓ ') + msg;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), isError ? 3500 : 2500);
+}
+
+// ── Data ──
+let state = { staff: [], selectedId: null };
+
+async function loadData() {
+  const records = await apiCall('GET', '/api/onboarding');
+  state.staff = Array.isArray(records) ? records : [];
+}
+
 const SECTIONS = [
   {
     id: 'pre-interview',
@@ -658,17 +805,6 @@ const SECTIONS = [
   }
 ];
 
-// ── State ──
-let state = { staff: [], selectedId: null };
-
-function loadState() {
-  try { state = JSON.parse(localStorage.getItem('onboarding-tracker') || '{"staff":[],"selectedId":null}'); } catch {}
-}
-
-function saveState() {
-  localStorage.setItem('onboarding-tracker', JSON.stringify(state));
-}
-
 function getSelected() {
   return state.staff.find(s => s.id === state.selectedId) || null;
 }
@@ -694,18 +830,16 @@ function initials(name) {
 
 // ── Views ──
 function showDashboard() {
-  document.getElementById('viewDashboard').classList.add('active');
-  document.getElementById('viewDetail').classList.remove('active');
   state.selectedId = null;
-  saveState();
+  document.getElementById('viewDashboard').style.display = 'block';
+  document.getElementById('viewDetail').style.display    = 'none';
   renderDashboard();
 }
 
 function showDetail(id) {
   state.selectedId = id;
-  saveState();
-  document.getElementById('viewDashboard').classList.remove('active');
-  document.getElementById('viewDetail').classList.add('active');
+  document.getElementById('viewDashboard').style.display = 'none';
+  document.getElementById('viewDetail').style.display    = 'block';
   window.scrollTo(0, 0);
   renderDetail();
 }
@@ -845,6 +979,19 @@ function renderDetail() {
 }
 
 // ── Actions ──
+// Debounce timer for saving doc changes
+const _saveTimers = {};
+function scheduleSave(person) {
+  clearTimeout(_saveTimers[person.id]);
+  _saveTimers[person.id] = setTimeout(() => {
+    apiCall('PUT', '/api/onboarding', {
+      id: person.id, name: person.name, role: person.role,
+      startDate: person.startDate, isManagement: person.isManagement,
+      isTeaching: person.isTeaching, docs: person.docs
+    }).catch(() => notify('Failed to save changes', true));
+  }, 800);
+}
+
 function toggleDoc(itemId, checked) {
   const person = getSelected();
   if (!person) return;
@@ -858,7 +1005,7 @@ function toggleDoc(itemId, checked) {
   }
   const row = document.getElementById('row-' + itemId);
   if (row) row.className = 'doc-row' + (checked ? ' checked' : '');
-  saveState();
+  scheduleSave(person);
   updateProgress();
 }
 
@@ -868,7 +1015,7 @@ function updateDocField(itemId, field, value) {
   if (!person.docs) person.docs = {};
   if (!person.docs[itemId]) person.docs[itemId] = {};
   person.docs[itemId][field] = value;
-  saveState();
+  scheduleSave(person);
 }
 
 function updateProgress() {
@@ -897,14 +1044,18 @@ function toggleSection(id) {
   if (card) card.classList.toggle('collapsed');
 }
 
-function deleteStaff(e, id) {
+async function deleteStaff(e, id) {
   e.stopPropagation();
   const person = state.staff.find(s => s.id === id);
   if (!confirm(`Remove ${person?.name || 'this staff member'}? This cannot be undone.`)) return;
-  state.staff = state.staff.filter(s => s.id !== id);
-  state.selectedId = null;
-  saveState();
-  showDashboard();
+  try {
+    await apiCall('DELETE', `/api/onboarding?id=${encodeURIComponent(id)}`);
+    state.staff = state.staff.filter(s => s.id !== id);
+    state.selectedId = null;
+    showDashboard();
+  } catch(e) {
+    notify('Failed to remove staff member', true);
+  }
 }
 
 // ── Modal ──
@@ -961,24 +1112,42 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
 }
 
-function saveStaff() {
+async function saveStaff() {
   const name         = document.getElementById('inputName').value.trim();
   const role         = document.getElementById('inputRole').value.trim();
   const start        = document.getElementById('inputStart').value;
   const isManagement = document.getElementById('toggleMgmt').classList.contains('selected-mgmt');
   const isTeaching   = document.getElementById('toggleTeach').classList.contains('selected-teach');
   if (!name) { document.getElementById('inputName').focus(); return; }
-  if (editingId) {
-    const person = state.staff.find(s => s.id === editingId);
-    if (person) { person.name = name; person.role = role; person.startDate = start; person.isManagement = isManagement; person.isTeaching = isTeaching; }
-    saveState();
-    closeModal();
-    if (state.selectedId === editingId) renderDetail(); else renderDashboard();
-  } else {
-    state.staff.push({ id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} });
-    saveState();
-    closeModal();
-    renderDashboard();
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  try {
+    if (editingId) {
+      const person = state.staff.find(s => s.id === editingId);
+      if (person) {
+        person.name = name; person.role = role; person.startDate = start;
+        person.isManagement = isManagement; person.isTeaching = isTeaching;
+        await apiCall('PUT', '/api/onboarding', {
+          id: person.id, name, role, startDate: start,
+          isManagement, isTeaching, docs: person.docs || {}
+        });
+      }
+      closeModal();
+      if (state.selectedId === editingId) renderDetail(); else renderDashboard();
+    } else {
+      const id = Date.now().toString();
+      await apiCall('POST', '/api/onboarding', { id, name, role, startDate: start, isManagement, isTeaching });
+      state.staff.push({ id, name, role, startDate: start, isManagement, isTeaching, docs: {} });
+      closeModal();
+      renderDashboard();
+    }
+  } catch(err) {
+    notify('Failed to save. Please try again.', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editingId ? 'Save Changes' : 'Add Staff Member';
   }
 }
 
@@ -995,8 +1164,7 @@ function fmtDate(iso) {
 document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.getElementById('inputName').addEventListener('keydown', e => { if (e.key === 'Enter') saveStaff(); });
 
-loadState();
-renderDashboard();
+init();
 </script>
 </body>
 </html>
