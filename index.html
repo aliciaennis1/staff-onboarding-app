@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Onboarding Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4F6228;
+      --primary-light: #5a7030;
+      --primary-dark: #3d4e1f;
+      --primary-bg: #e8f0dc;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --danger: #dc2626;
+      --grey-50: #f9fafb;
+      --grey-100: #f3f4f6;
+      --grey-200: #e5e7eb;
+      --grey-300: #d1d5db;
+      --grey-400: #9ca3af;
+      --grey-600: #4b5563;
+      --grey-700: #374151;
+      --grey-800: #1f2937;
+      --sidebar-w: 280px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--grey-100);
+      color: var(--grey-800);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--primary-dark);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 3px;
+    }
+
+    .add-staff-btn {
+      margin: 12px;
+      padding: 9px 14px;
+      background: var(--primary-light);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .add-staff-btn:hover { background: #3d4e1f; }
+
+    .staff-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 8px 12px;
+    }
+
+    .staff-item {
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .staff-item:hover { background: rgba(255,255,255,0.1); }
+    .staff-item.active { background: rgba(255,255,255,0.18); }
+
+    .staff-item-info { flex: 1; min-width: 0; }
+
+    .staff-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .staff-item-role {
+      font-size: 11px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .staff-item-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .badge-complete { background: var(--success-bg); color: var(--success); }
+    .badge-partial  { background: var(--warning-bg); color: var(--warning); }
+    .badge-empty    { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+    .staff-item-delete {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer;
+      padding: 2px;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+
+    .staff-item-delete:hover { color: #f87171; }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .main-header {
+      background: #fff;
+      border-bottom: 1px solid var(--grey-200);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .main-header-left h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--grey-800);
+    }
+
+    .main-header-left p {
+      font-size: 13px;
+      color: var(--grey-400);
+      margin-top: 2px;
+    }
+
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar-track {
+      width: 180px;
+      height: 8px;
+      background: var(--grey-200);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--primary-light);
+      transition: width 0.3s ease;
+    }
+
+    .progress-bar-fill.complete { background: var(--success); }
+
+    .progress-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--grey-600);
+      white-space: nowrap;
+    }
+
+    .main-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px 32px;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--grey-400);
+    }
+
+    .empty-state .icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 { font-size: 18px; color: var(--grey-600); }
+    .empty-state p  { font-size: 14px; margin-top: 6px; }
+
+    /* ── Section cards ── */
+    .section-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--grey-200);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--grey-100);
+    }
+
+    .section-header:hover { background: var(--grey-50); }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--grey-800);
+    }
+
+    .section-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--grey-400);
+    }
+
+    .section-chevron {
+      font-size: 12px;
+      color: var(--grey-400);
+      transition: transform 0.2s;
+    }
+
+    .section-card.collapsed .section-chevron { transform: rotate(-90deg); }
+    .section-card.collapsed .section-items  { display: none; }
+
+    .section-items { padding: 6px 0; }
+
+    /* ── Doc rows ── */
+    .doc-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 150px 140px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-bottom: 1px solid var(--grey-100);
+      transition: background 0.12s;
+    }
+
+    .doc-row:last-child { border-bottom: none; }
+    .doc-row:hover { background: var(--grey-50); }
+    .doc-row.checked { background: var(--success-bg); }
+
+    .doc-checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--grey-300);
+      border-radius: 5px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      background: #fff;
+      position: relative;
+    }
+
+    .doc-checkbox:checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .doc-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 0px;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .doc-label {
+      font-size: 13px;
+      color: var(--grey-700);
+      line-height: 1.4;
+    }
+
+    .doc-row.checked .doc-label {
+      color: var(--success);
+      text-decoration: line-through;
+      text-decoration-color: #6ee7b7;
+    }
+
+    .doc-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--grey-100);
+      color: var(--grey-500);
+      display: inline-block;
+      margin-left: 6px;
+    }
+
+    .doc-date-input {
+      font-size: 12px;
+      padding: 5px 8px;
+      border: 1px solid var(--grey-200);
+      border-radius: 6px;
+      color: var(--grey-700);
+      background: #fff;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .doc-date-input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(79,98,40,0.1);
+    }
+
+    .doc-row.checked .doc-date-input {
+      border-color: #a7f3d0;
+      background: #f0fdf4;
+    }
+
+    .doc-checked-by {
+      font-size: 12px;
+      padding: 5px 8px;
+      border: 1px solid var(--grey-200);
+      border-radius: 6px;
+      color: var(--grey-700);
+      background: #fff;
+      width: 100%;
+    }
+
+    .doc-checked-by:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(79,98,40,0.1);
+    }
+
+    .doc-row.checked .doc-checked-by {
+      border-color: #a7f3d0;
+      background: #f0fdf4;
+    }
+
+    /* ── Column headers ── */
+    .doc-row-header {
+      display: grid;
+      grid-template-columns: 32px 1fr 150px 140px;
+      gap: 8px;
+      padding: 6px 18px;
+      border-bottom: 1px solid var(--grey-200);
+      background: var(--grey-50);
+    }
+
+    .doc-row-header span {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--grey-400);
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px;
+      width: 440px;
+      max-width: 95vw;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--grey-800);
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--grey-600);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--grey-300);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--grey-800);
+      transition: border-color 0.15s;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(79,98,40,0.1);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+
+    .btn-primary { background: var(--primary-light); color: #fff; }
+    .btn-primary:hover { background: var(--primary); }
+    .btn-secondary { background: var(--grey-100); color: var(--grey-700); }
+    .btn-secondary:hover { background: var(--grey-200); }
+
+    /* ── Role toggles ── */
+    .role-toggles {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .role-toggle {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 2px solid var(--grey-200);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .role-toggle:hover { border-color: var(--grey-300); background: var(--grey-50); }
+    .role-toggle.selected-mgmt { border-color: #4F6228; background: #e8f0dc; }
+    .role-toggle.selected-teach { border-color: #0891b2; background: #ecfeff; }
+
+    .role-toggle input[type=checkbox] { display: none; }
+
+    .toggle-icon { font-size: 18px; }
+
+    .toggle-text { flex: 1; }
+    .toggle-text strong { display: block; font-size: 13px; color: var(--grey-800); }
+    .toggle-text span   { display: block; font-size: 11px; color: var(--grey-400); margin-top: 1px; }
+
+    .toggle-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--grey-300);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: transparent;
+    }
+
+    .role-toggle.selected-mgmt .toggle-check {
+      background: #4F6228;
+      border-color: #4F6228;
+      color: #fff;
+    }
+
+    .role-toggle.selected-teach .toggle-check {
+      background: #0891b2;
+      border-color: #0891b2;
+      color: #fff;
+    }
+
+    /* ── Role tags in header ── */
+    .role-tags { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+
+    .role-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .role-tag-mgmt  { background: #e8f0dc; color: #4F6228; }
+    .role-tag-teach { background: #cffafe; color: #0e7490; }
+
+    /* ── N/A rows ── */
+    .doc-row.na {
+      opacity: 0.4;
+      pointer-events: none;
+      background: var(--grey-50);
+    }
+
+    .doc-row.na .doc-label { color: var(--grey-400); }
+
+    .na-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--grey-200);
+      color: var(--grey-400);
+      display: inline-block;
+      margin-left: 6px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--grey-300); border-radius: 999px; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <img src="logo.png" alt="Adventure Wellbeing School" style="height:48px;width:auto;display:block;margin-bottom:12px;" />
+    <h1>Staff Onboarding Tracker</h1>
+    <p>Safer Recruitment Documents</p>
+  </div>
+  <button class="add-staff-btn" onclick="openModal()">
+    <span>+</span> Add New Staff Member
+  </button>
+  <div class="staff-list" id="staffList"></div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="main-header" id="mainHeader" style="display:none">
+    <div class="main-header-left">
+      <h2 id="headerName"></h2>
+      <p id="headerRole"></p>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <span class="progress-label" id="progressLabel"></span>
+    </div>
+  </div>
+
+  <div class="main-body" id="mainBody">
+    <div class="empty-state">
+      <div class="icon">📋</div>
+      <h3>No staff member selected</h3>
+      <p>Add a new staff member or select one from the sidebar</p>
+    </div>
+  </div>
+</main>
+
+<!-- Add Staff Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Add New Staff Member</h3>
+    <div class="form-group">
+      <label>Full Name *</label>
+      <input type="text" id="inputName" placeholder="e.g. Jane Smith" />
+    </div>
+    <div class="form-group">
+      <label>Job Title *</label>
+      <input type="text" id="inputRole" placeholder="e.g. Teaching Assistant" />
+    </div>
+    <div class="form-group">
+      <label>Start Date</label>
+      <input type="date" id="inputStart" />
+    </div>
+    <div class="form-group">
+      <label>Role Type <span style="font-weight:400;text-transform:none;color:var(--grey-400)">(select all that apply)</span></label>
+      <div class="role-toggles">
+        <label class="role-toggle" id="toggleMgmt" onclick="toggleRole('mgmt')">
+          <input type="checkbox" id="inputMgmt" />
+          <span class="toggle-icon">🏢</span>
+          <span class="toggle-text">
+            <strong>Management</strong>
+            <span>Requires 128 Check</span>
+          </span>
+          <span class="toggle-check" id="checkMgmt"></span>
+        </label>
+        <label class="role-toggle" id="toggleTeach" onclick="toggleRole('teach')">
+          <input type="checkbox" id="inputTeach" />
+          <span class="toggle-icon">🎓</span>
+          <span class="toggle-text">
+            <strong>Teaching</strong>
+            <span>Requires Prohibition Check</span>
+          </span>
+          <span class="toggle-check" id="checkTeach"></span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="addStaff()">Add Staff Member</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    id: 'pre-interview',
+    title: 'Pre-Interview Documents',
+    icon: '📝',
+    color: '#e8f0dc',
+    items: [
+      { id: 'app-form',      label: 'Application Form + Offence Disclaimer, Prohibition Consent' },
+      { id: 'cv',            label: 'CV' },
+      { id: 'birth-cert',    label: 'Birth Certificate' },
+      { id: 'proof-address', label: 'Proof of Address' },
+      { id: 'passport',      label: 'Passport' },
+      { id: 'reference-1',   label: 'Reference 1' },
+      { id: 'reference-2',   label: 'Reference 2' },
+    ]
+  },
+  {
+    id: 'interview',
+    title: 'Interview Documents',
+    icon: '🎤',
+    color: '#fef3c7',
+    items: [
+      { id: 'interview-q',      label: 'Interview Questions' },
+      { id: 'qualifications',   label: 'Qualifications' },
+      { id: 'offence-disc',     label: 'Offence Disclaimer', note: 'to be reviewed' },
+    ]
+  },
+  {
+    id: 'onboarding',
+    title: 'Onboarding Documents',
+    icon: '🔐',
+    color: '#dbeafe',
+    items: [
+      { id: 'health-decl',     label: 'Health Declaration' },
+      { id: 'safer-rec-cert',  label: 'Safer Recruitment Certificate' },
+      { id: 'dbs',             label: 'DBS (with Children\'s Barred List)' },
+      { id: 'prohibition',     label: 'Prohibition Check', note: 'Teaching roles only',  requiresTeaching: true },
+      { id: 'check-128',       label: '128 Check',        note: 'Management roles only', requiresManagement: true },
+      { id: 'overseas-crc',    label: 'Overseas Criminal Record Check' },
+    ]
+  },
+  {
+    id: 'induction',
+    title: 'Induction Documents',
+    icon: '📚',
+    color: '#d1fae5',
+    items: [
+      { id: 'induction-book',  label: 'Induction Booklet' },
+      { id: 'childcare-disc',  label: 'Childcare Disclaimer' },
+      { id: 'employee-detail', label: 'Employee Details' },
+      { id: 'safeguarding',    label: 'Safeguarding Disclaimer' },
+      { id: 'fire-safety',     label: 'Fire Safety Disclaimer' },
+      { id: 'hmrc',            label: 'HMRC Form' },
+      { id: 'bank-details',    label: 'Bank Details' },
+      { id: 'driving-lic',     label: 'Driving Licence' },
+      { id: 'driver-chap',     label: 'Driver / Chaperone Document Checklist' },
+      { id: 'penalty-pts',     label: 'Penalty Points Check' },
+      { id: 'biz-insurance',   label: 'Business Insurance Document' },
+      { id: 'induction-ck',    label: 'Induction Checklist' },
+    ]
+  }
+];
+
+// ── State ──
+let state = { staff: [], selectedId: null };
+
+function loadState() {
+  const raw = localStorage.getItem('onboarding-tracker');
+  if (raw) {
+    try { state = JSON.parse(raw); } catch {}
+  }
+}
+
+function saveState() {
+  localStorage.setItem('onboarding-tracker', JSON.stringify(state));
+}
+
+function getSelected() {
+  return state.staff.find(s => s.id === state.selectedId) || null;
+}
+
+function isApplicable(item, person) {
+  if (item.requiresManagement && !person.isManagement) return false;
+  if (item.requiresTeaching  && !person.isTeaching)   return false;
+  return true;
+}
+
+function getTotalDocs(person) {
+  return SECTIONS.reduce((acc, sec) =>
+    acc + sec.items.filter(item => isApplicable(item, person)).length, 0);
+}
+
+function countDocs(person) {
+  return SECTIONS.reduce((acc, sec) =>
+    acc + sec.items.filter(item => isApplicable(item, person) && person.docs?.[item.id]?.checked).length, 0);
+}
+
+// ── Sidebar ──
+function renderSidebar() {
+  const list = document.getElementById('staffList');
+  if (!state.staff.length) {
+    list.innerHTML = '<div style="padding:12px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center">No staff members yet</div>';
+    return;
+  }
+  list.innerHTML = state.staff.map(person => {
+    const done  = countDocs(person);
+    const total = getTotalDocs(person);
+    const badgeCls = done === total ? 'badge-complete' : done > 0 ? 'badge-partial' : 'badge-empty';
+    const badgeTxt = done === total ? '✓ Complete' : `${done}/${total}`;
+    return `
+      <div class="staff-item ${person.id === state.selectedId ? 'active' : ''}" onclick="selectStaff('${person.id}')">
+        <div class="staff-item-info">
+          <div class="staff-item-name">${esc(person.name)}</div>
+          <div class="staff-item-role">${esc(person.role || 'No role specified')}</div>
+        </div>
+        <span class="staff-item-badge ${badgeCls}">${badgeTxt}</span>
+        <button class="staff-item-delete" onclick="deleteStaff(event,'${person.id}')" title="Remove">✕</button>
+      </div>`;
+  }).join('');
+}
+
+// ── Main panel ──
+function renderMain() {
+  const person = getSelected();
+  const header = document.getElementById('mainHeader');
+  const body   = document.getElementById('mainBody');
+
+  if (!person) {
+    header.style.display = 'none';
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No staff member selected</h3>
+        <p>Add a new staff member or select one from the sidebar</p>
+      </div>`;
+    return;
+  }
+
+  header.style.display = 'flex';
+  document.getElementById('headerName').textContent = person.name;
+
+  const roleLine = (person.role || '') + (person.startDate ? '  ·  Starting ' + fmtDate(person.startDate) : '');
+  const roleTags = [
+    person.isManagement ? '<span class="role-tag role-tag-mgmt">🏢 Management</span>' : '',
+    person.isTeaching   ? '<span class="role-tag role-tag-teach">🎓 Teaching</span>'   : '',
+  ].filter(Boolean).join('');
+  document.getElementById('headerRole').innerHTML =
+    `<span>${esc(roleLine)}</span>${roleTags ? `<span class="role-tags">${roleTags}</span>` : ''}`;
+
+  const done  = countDocs(person);
+  const total = getTotalDocs(person);
+  const pct   = total > 0 ? (done / total) * 100 : 0;
+  const fill  = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  fill.className   = 'progress-bar-fill' + (done === total ? ' complete' : '');
+  document.getElementById('progressLabel').textContent = `${done} / ${total} documents`;
+
+  body.innerHTML = SECTIONS.map(sec => {
+    const applicable = sec.items.filter(it => isApplicable(it, person));
+    const secDone    = applicable.filter(it => person.docs?.[it.id]?.checked).length;
+    return `
+      <div class="section-card" id="sec-${sec.id}">
+        <div class="section-header" onclick="toggleSection('${sec.id}')">
+          <div class="section-icon" style="background:${sec.color}">${sec.icon}</div>
+          <span class="section-title">${sec.title}</span>
+          <span class="section-count">${secDone} / ${applicable.length}</span>
+          <span class="section-chevron">▼</span>
+        </div>
+        <div class="section-items">
+          <div class="doc-row-header">
+            <span></span>
+            <span>Document</span>
+            <span>Date Received</span>
+            <span>Checked By</span>
+          </div>
+          ${sec.items.map(item => {
+            const applicable = isApplicable(item, person);
+            const d   = person.docs?.[item.id] || {};
+            const cls = !applicable ? ' na' : d.checked ? ' checked' : '';
+            return `
+              <div class="doc-row${cls}" id="row-${item.id}">
+                <input type="checkbox" class="doc-checkbox"
+                  ${d.checked ? 'checked' : ''}
+                  ${!applicable ? 'disabled' : ''}
+                  onchange="toggleDoc('${item.id}', this.checked)" />
+                <span class="doc-label">
+                  ${esc(item.label)}
+                  ${!applicable
+                    ? '<span class="na-badge">N/A</span>'
+                    : item.note ? `<span class="doc-tag">${esc(item.note)}</span>` : ''}
+                </span>
+                <input type="date" class="doc-date-input"
+                  value="${d.date || ''}"
+                  ${!applicable ? 'disabled' : ''}
+                  onchange="updateDocField('${item.id}', 'date', this.value)" />
+                <input type="text" class="doc-checked-by"
+                  value="${esc(d.checkedBy || '')}"
+                  placeholder="${applicable ? 'Name...' : ''}"
+                  ${!applicable ? 'disabled' : ''}
+                  oninput="updateDocField('${item.id}', 'checkedBy', this.value)" />
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Actions ──
+function selectStaff(id) {
+  state.selectedId = id;
+  saveState();
+  renderSidebar();
+  renderMain();
+}
+
+function deleteStaff(e, id) {
+  e.stopPropagation();
+  const person = state.staff.find(s => s.id === id);
+  if (!confirm(`Remove ${person?.name || 'this staff member'}? This cannot be undone.`)) return;
+  state.staff = state.staff.filter(s => s.id !== id);
+  if (state.selectedId === id) state.selectedId = state.staff[0]?.id || null;
+  saveState();
+  renderSidebar();
+  renderMain();
+}
+
+function toggleDoc(itemId, checked) {
+  const person = getSelected();
+  if (!person) return;
+  if (!person.docs) person.docs = {};
+  if (!person.docs[itemId]) person.docs[itemId] = {};
+  person.docs[itemId].checked = checked;
+  if (checked && !person.docs[itemId].date) {
+    person.docs[itemId].date = new Date().toISOString().split('T')[0];
+    const dateInput = document.querySelector(`#row-${itemId} .doc-date-input`);
+    if (dateInput) dateInput.value = person.docs[itemId].date;
+  }
+  const row = document.getElementById('row-' + itemId);
+  if (row) {
+    row.className = 'doc-row' + (checked ? ' checked' : '');
+  }
+  saveState();
+  updateProgress();
+  renderSidebar();
+}
+
+function updateDocField(itemId, field, value) {
+  const person = getSelected();
+  if (!person) return;
+  if (!person.docs) person.docs = {};
+  if (!person.docs[itemId]) person.docs[itemId] = {};
+  person.docs[itemId][field] = value;
+  saveState();
+}
+
+function updateProgress() {
+  const person = getSelected();
+  if (!person) return;
+  const done  = countDocs(person);
+  const total = getTotalDocs(person);
+  const pct   = total > 0 ? (done / total) * 100 : 0;
+  const fill  = document.getElementById('progressFill');
+  if (fill) {
+    fill.style.width = pct + '%';
+    fill.className   = 'progress-bar-fill' + (done === total ? ' complete' : '');
+  }
+  const lbl = document.getElementById('progressLabel');
+  if (lbl) lbl.textContent = `${done} / ${total} documents`;
+
+  SECTIONS.forEach(sec => {
+    const card = document.getElementById('sec-' + sec.id);
+    if (!card) return;
+    const applicable = sec.items.filter(it => isApplicable(it, person));
+    const secDone    = applicable.filter(it => person.docs?.[it.id]?.checked).length;
+    const cnt = card.querySelector('.section-count');
+    if (cnt) cnt.textContent = `${secDone} / ${applicable.length}`;
+  });
+}
+
+function toggleSection(id) {
+  const card = document.getElementById('sec-' + id);
+  if (card) card.classList.toggle('collapsed');
+}
+
+// ── Modal ──
+function toggleRole(type) {
+  const el    = document.getElementById('toggle' + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
+  const check = document.getElementById('check'  + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
+  const cls   = type === 'mgmt' ? 'selected-mgmt' : 'selected-teach';
+  const active = el.classList.toggle(cls);
+  check.textContent = active ? '✓' : '';
+}
+
+function openModal() {
+  document.getElementById('inputName').value  = '';
+  document.getElementById('inputRole').value  = '';
+  document.getElementById('inputStart').value = '';
+  // reset role toggles
+  ['Mgmt','Teach'].forEach(t => {
+    document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
+    document.getElementById('check'  + t).textContent = '';
+  });
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('inputName').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function addStaff() {
+  const name         = document.getElementById('inputName').value.trim();
+  const role         = document.getElementById('inputRole').value.trim();
+  const start        = document.getElementById('inputStart').value;
+  const isManagement = document.getElementById('toggleMgmt').classList.contains('selected-mgmt');
+  const isTeaching   = document.getElementById('toggleTeach').classList.contains('selected-teach');
+
+  if (!name) { document.getElementById('inputName').focus(); return; }
+
+  const person = { id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} };
+  state.staff.push(person);
+  state.selectedId = person.id;
+  saveState();
+  closeModal();
+  renderSidebar();
+  renderMain();
+}
+
+// ── Helpers ──
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+// ── Close modal on overlay click ──
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.getElementById('inputName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addStaff();
+});
+
+// ── Init ──
+loadState();
+renderSidebar();
+renderMain();
+</script>
+</body>
+</html>
