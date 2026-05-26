@@ -16,7 +16,6 @@
       --success-bg: #ecfdf5;
       --warning: #d97706;
       --warning-bg: #fffbeb;
-      --danger: #dc2626;
       --grey-50: #f9fafb;
       --grey-100: #f3f4f6;
       --grey-200: #e5e7eb;
@@ -25,217 +24,282 @@
       --grey-600: #4b5563;
       --grey-700: #374151;
       --grey-800: #1f2937;
-      --sidebar-w: 280px;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--grey-100);
       color: var(--grey-800);
-      height: 100vh;
-      display: flex;
-      overflow: hidden;
+      min-height: 100vh;
     }
 
-    /* ── Sidebar ── */
-    .sidebar {
-      width: var(--sidebar-w);
+    /* ── Top bar ── */
+    .topbar {
       background: var(--primary-dark);
+      padding: 0 32px;
+      height: 64px;
       display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
 
-    .sidebar-header {
-      padding: 20px 16px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+    .topbar-logo {
+      height: 40px;
+      width: auto;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      padding: 3px;
     }
 
-    .sidebar-header h1 {
-      font-size: 15px;
+    .topbar-title {
+      flex: 1;
+    }
+
+    .topbar-title h1 {
+      font-size: 16px;
       font-weight: 700;
       color: #fff;
-      line-height: 1.3;
     }
 
-    .sidebar-header p {
+    .topbar-title p {
       font-size: 12px;
       color: rgba(255,255,255,0.6);
-      margin-top: 3px;
     }
 
-    .add-staff-btn {
-      margin: 12px;
-      padding: 9px 14px;
-      background: var(--primary-light);
-      color: #fff;
-      border: none;
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      padding: 9px 18px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
+      border: none;
+      transition: all 0.15s;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s;
     }
 
-    .add-staff-btn:hover { background: #3d4e1f; }
+    .btn-primary { background: var(--primary-light); color: #fff; }
+    .btn-primary:hover { background: var(--primary); }
+    .btn-white  { background: #fff; color: var(--primary-dark); }
+    .btn-white:hover  { background: var(--primary-bg); }
+    .btn-ghost  { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+    .btn-ghost:hover  { background: rgba(255,255,255,0.2); }
+    .btn-secondary { background: var(--grey-100); color: var(--grey-700); }
+    .btn-secondary:hover { background: var(--grey-200); }
 
-    .staff-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 4px 8px 12px;
+    /* ── Views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Dashboard ── */
+    .dashboard { padding: 28px 32px 48px; max-width: 1200px; margin: 0 auto; }
+
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
     }
 
-    .staff-item {
-      padding: 10px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-bottom: 2px;
-      transition: background 0.15s;
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--grey-200);
+      padding: 20px 22px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      gap: 16px;
     }
 
-    .staff-item:hover { background: rgba(255,255,255,0.1); }
-    .staff-item.active { background: rgba(255,255,255,0.18); }
-
-    .staff-item-info { flex: 1; min-width: 0; }
-
-    .staff-item-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .staff-item-role {
-      font-size: 11px;
-      color: rgba(255,255,255,0.55);
-      margin-top: 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .staff-item-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 999px;
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
       flex-shrink: 0;
+    }
+
+    .stat-body {}
+    .stat-body .num { font-size: 26px; font-weight: 800; color: var(--grey-800); line-height: 1; }
+    .stat-body .lbl { font-size: 12px; color: var(--grey-400); margin-top: 3px; font-weight: 500; }
+
+    .dash-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--grey-700);
+      margin-bottom: 14px;
+    }
+
+    .staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .staff-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--grey-200);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .staff-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(79,98,40,0.1);
+      transform: translateY(-1px);
+    }
+
+    .staff-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .staff-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: var(--primary-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .staff-card-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
     }
 
     .badge-complete { background: var(--success-bg); color: var(--success); }
     .badge-partial  { background: var(--warning-bg); color: var(--warning); }
-    .badge-empty    { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+    .badge-empty    { background: var(--grey-100);   color: var(--grey-400); }
 
-    .staff-item-delete {
-      background: none;
-      border: none;
-      color: rgba(255,255,255,0.3);
-      cursor: pointer;
-      padding: 2px;
-      font-size: 14px;
-      line-height: 1;
-      border-radius: 4px;
-      flex-shrink: 0;
-      transition: color 0.15s;
-    }
-
-    .staff-item-delete:hover { color: #f87171; }
-
-    /* ── Main ── */
-    .main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .main-header {
-      background: #fff;
-      border-bottom: 1px solid var(--grey-200);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-shrink: 0;
-    }
-
-    .main-header-left h2 {
-      font-size: 18px;
+    .staff-card-name {
+      font-size: 15px;
       font-weight: 700;
       color: var(--grey-800);
+      margin-bottom: 3px;
     }
 
-    .main-header-left p {
-      font-size: 13px;
+    .staff-card-role {
+      font-size: 12px;
       color: var(--grey-400);
-      margin-top: 2px;
+      margin-bottom: 10px;
     }
 
-    .progress-bar-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .role-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+
+    .role-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
     }
 
-    .progress-bar-track {
-      width: 180px;
-      height: 8px;
-      background: var(--grey-200);
+    .role-tag-mgmt  { background: #e8f0dc; color: #4F6228; }
+    .role-tag-teach { background: #cffafe; color: #0e7490; }
+
+    .card-progress-track {
+      height: 6px;
+      background: var(--grey-100);
       border-radius: 999px;
       overflow: hidden;
+      margin-bottom: 6px;
     }
 
-    .progress-bar-fill {
+    .card-progress-fill {
       height: 100%;
       border-radius: 999px;
       background: var(--primary-light);
-      transition: width 0.3s ease;
+      transition: width 0.3s;
     }
 
-    .progress-bar-fill.complete { background: var(--success); }
+    .card-progress-fill.complete { background: var(--success); }
 
-    .progress-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--grey-600);
-      white-space: nowrap;
-    }
-
-    .main-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px 32px;
-    }
-
-    /* ── Empty state ── */
-    .empty-state {
+    .card-progress-label {
+      font-size: 11px;
+      color: var(--grey-400);
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
+      justify-content: space-between;
+    }
+
+    .staff-card-delete {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: none;
+      border: none;
+      color: var(--grey-300);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .staff-card:hover .staff-card-delete { color: var(--grey-400); }
+    .staff-card-delete:hover { color: #ef4444 !important; }
+    .staff-card { position: relative; }
+
+    /* empty state */
+    .empty-grid {
+      grid-column: 1 / -1;
       text-align: center;
+      padding: 60px 20px;
       color: var(--grey-400);
     }
 
-    .empty-state .icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-      opacity: 0.4;
+    .empty-grid .icon { font-size: 52px; margin-bottom: 14px; opacity: 0.4; }
+    .empty-grid h3 { font-size: 17px; color: var(--grey-600); }
+    .empty-grid p  { font-size: 13px; margin-top: 6px; }
+
+    /* ── Detail view ── */
+    .detail-header {
+      background: #fff;
+      border-bottom: 1px solid var(--grey-200);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
 
-    .empty-state h3 { font-size: 18px; color: var(--grey-600); }
-    .empty-state p  { font-size: 14px; margin-top: 6px; }
+    .detail-header-info { flex: 1; }
+    .detail-header-info h2 { font-size: 18px; font-weight: 700; }
+    .detail-header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--grey-400);
+    }
+
+    .progress-bar-wrap { display: flex; align-items: center; gap: 10px; }
+    .progress-bar-track { width: 180px; height: 8px; background: var(--grey-200); border-radius: 999px; overflow: hidden; }
+    .progress-bar-fill  { height: 100%; border-radius: 999px; background: var(--primary-light); transition: width 0.3s; }
+    .progress-bar-fill.complete { background: var(--success); }
+    .progress-label { font-size: 13px; font-weight: 600; color: var(--grey-600); white-space: nowrap; }
+
+    .detail-body { padding: 24px 32px 48px; max-width: 1000px; margin: 0 auto; }
 
     /* ── Section cards ── */
     .section-card {
@@ -259,41 +323,19 @@
     .section-header:hover { background: var(--grey-50); }
 
     .section-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
     }
 
-    .section-title {
-      flex: 1;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--grey-800);
-    }
-
-    .section-count {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--grey-400);
-    }
-
-    .section-chevron {
-      font-size: 12px;
-      color: var(--grey-400);
-      transition: transform 0.2s;
-    }
-
+    .section-title { flex: 1; font-size: 14px; font-weight: 700; color: var(--grey-800); }
+    .section-count { font-size: 12px; font-weight: 600; color: var(--grey-400); }
+    .section-chevron { font-size: 12px; color: var(--grey-400); transition: transform 0.2s; }
     .section-card.collapsed .section-chevron { transform: rotate(-90deg); }
     .section-card.collapsed .section-items  { display: none; }
 
     .section-items { padding: 6px 0; }
 
-    /* ── Doc rows ── */
     .doc-row {
       display: grid;
       grid-template-columns: 32px 1fr 150px 140px;
@@ -307,292 +349,137 @@
     .doc-row:last-child { border-bottom: none; }
     .doc-row:hover { background: var(--grey-50); }
     .doc-row.checked { background: var(--success-bg); }
+    .doc-row.na { opacity: 0.4; pointer-events: none; background: var(--grey-50); }
 
     .doc-checkbox {
-      width: 20px;
-      height: 20px;
+      width: 20px; height: 20px;
       border: 2px solid var(--grey-300);
       border-radius: 5px;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      cursor: pointer; flex-shrink: 0;
+      background: #fff; position: relative;
       transition: all 0.15s;
-      flex-shrink: 0;
-      background: #fff;
-      position: relative;
     }
 
-    .doc-checkbox:checked {
-      background: var(--success);
-      border-color: var(--success);
-    }
-
+    .doc-checkbox:checked { background: var(--success); border-color: var(--success); }
     .doc-checkbox:checked::after {
       content: '';
-      position: absolute;
-      left: 3px;
-      top: 0px;
-      width: 5px;
-      height: 9px;
-      border: 2px solid #fff;
-      border-top: none;
-      border-left: none;
+      position: absolute; left: 3px; top: 0px; width: 5px; height: 9px;
+      border: 2px solid #fff; border-top: none; border-left: none;
       transform: rotate(45deg);
     }
 
-    .doc-label {
-      font-size: 13px;
-      color: var(--grey-700);
-      line-height: 1.4;
-    }
-
-    .doc-row.checked .doc-label {
-      color: var(--success);
-      text-decoration: line-through;
-      text-decoration-color: #6ee7b7;
-    }
+    .doc-label { font-size: 13px; color: var(--grey-700); line-height: 1.4; }
+    .doc-row.checked .doc-label { color: var(--success); text-decoration: line-through; text-decoration-color: #6ee7b7; }
+    .doc-row.na .doc-label { color: var(--grey-400); }
 
     .doc-tag {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--grey-100);
-      color: var(--grey-500);
-      display: inline-block;
-      margin-left: 6px;
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 999px;
+      background: var(--grey-100); color: var(--grey-400);
+      display: inline-block; margin-left: 6px;
     }
 
-    .doc-date-input {
-      font-size: 12px;
-      padding: 5px 8px;
-      border: 1px solid var(--grey-200);
-      border-radius: 6px;
-      color: var(--grey-700);
-      background: #fff;
-      width: 100%;
-      cursor: pointer;
+    .na-badge {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+      background: var(--grey-200); color: var(--grey-400);
+      display: inline-block; margin-left: 6px;
     }
 
-    .doc-date-input:focus {
-      outline: none;
-      border-color: var(--primary-light);
+    .doc-date-input, .doc-checked-by {
+      font-size: 12px; padding: 5px 8px;
+      border: 1px solid var(--grey-200); border-radius: 6px;
+      color: var(--grey-700); background: #fff; width: 100%;
+    }
+
+    .doc-date-input:focus, .doc-checked-by:focus {
+      outline: none; border-color: var(--primary-light);
       box-shadow: 0 0 0 2px rgba(79,98,40,0.1);
     }
 
-    .doc-row.checked .doc-date-input {
-      border-color: #a7f3d0;
-      background: #f0fdf4;
-    }
+    .doc-row.checked .doc-date-input,
+    .doc-row.checked .doc-checked-by { border-color: #a7f3d0; background: #f0fdf4; }
 
-    .doc-checked-by {
-      font-size: 12px;
-      padding: 5px 8px;
-      border: 1px solid var(--grey-200);
-      border-radius: 6px;
-      color: var(--grey-700);
-      background: #fff;
-      width: 100%;
-    }
-
-    .doc-checked-by:focus {
-      outline: none;
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 2px rgba(79,98,40,0.1);
-    }
-
-    .doc-row.checked .doc-checked-by {
-      border-color: #a7f3d0;
-      background: #f0fdf4;
-    }
-
-    /* ── Column headers ── */
     .doc-row-header {
       display: grid;
       grid-template-columns: 32px 1fr 150px 140px;
-      gap: 8px;
-      padding: 6px 18px;
+      gap: 8px; padding: 6px 18px;
       border-bottom: 1px solid var(--grey-200);
       background: var(--grey-50);
     }
 
     .doc-row-header span {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
       color: var(--grey-400);
     }
 
     /* ── Modal ── */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); z-index: 100;
+      align-items: center; justify-content: center;
     }
 
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px;
-      width: 440px;
-      max-width: 95vw;
+      background: #fff; border-radius: 14px;
+      padding: 28px; width: 460px; max-width: 95vw;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
 
-    .modal h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--grey-800);
-      margin-bottom: 18px;
-    }
+    .modal h3 { font-size: 17px; font-weight: 700; color: var(--grey-800); margin-bottom: 18px; }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
+    .form-group { margin-bottom: 14px; }
 
     .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--grey-600);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--grey-600); margin-bottom: 5px;
+      text-transform: uppercase; letter-spacing: 0.04em;
     }
 
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1px solid var(--grey-300);
-      border-radius: 8px;
-      font-size: 14px;
-      color: var(--grey-800);
-      transition: border-color 0.15s;
+    .form-group input {
+      width: 100%; padding: 9px 12px;
+      border: 1px solid var(--grey-300); border-radius: 8px;
+      font-size: 14px; color: var(--grey-800); transition: border-color 0.15s;
     }
 
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: var(--primary-light);
+    .form-group input:focus {
+      outline: none; border-color: var(--primary-light);
       box-shadow: 0 0 0 3px rgba(79,98,40,0.1);
     }
 
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .btn {
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all 0.15s;
-    }
-
-    .btn-primary { background: var(--primary-light); color: #fff; }
-    .btn-primary:hover { background: var(--primary); }
-    .btn-secondary { background: var(--grey-100); color: var(--grey-700); }
-    .btn-secondary:hover { background: var(--grey-200); }
-
-    /* ── Role toggles ── */
-    .role-toggles {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
+    .role-toggles { display: flex; gap: 10px; margin-bottom: 14px; }
 
     .role-toggle {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border: 2px solid var(--grey-200);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.15s;
-      user-select: none;
+      flex: 1; display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border: 2px solid var(--grey-200);
+      border-radius: 10px; cursor: pointer;
+      transition: all 0.15s; user-select: none;
     }
 
     .role-toggle:hover { border-color: var(--grey-300); background: var(--grey-50); }
-    .role-toggle.selected-mgmt { border-color: #4F6228; background: #e8f0dc; }
+    .role-toggle.selected-mgmt  { border-color: #4F6228; background: #e8f0dc; }
     .role-toggle.selected-teach { border-color: #0891b2; background: #ecfeff; }
 
-    .role-toggle input[type=checkbox] { display: none; }
-
     .toggle-icon { font-size: 18px; }
-
     .toggle-text { flex: 1; }
     .toggle-text strong { display: block; font-size: 13px; color: var(--grey-800); }
     .toggle-text span   { display: block; font-size: 11px; color: var(--grey-400); margin-top: 1px; }
 
     .toggle-check {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--grey-300);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 11px;
-      color: transparent;
+      width: 18px; height: 18px;
+      border: 2px solid var(--grey-300); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 11px; color: transparent;
     }
 
-    .role-toggle.selected-mgmt .toggle-check {
-      background: #4F6228;
-      border-color: #4F6228;
-      color: #fff;
-    }
+    .role-toggle.selected-mgmt  .toggle-check { background: #4F6228; border-color: #4F6228; color: #fff; }
+    .role-toggle.selected-teach .toggle-check { background: #0891b2; border-color: #0891b2; color: #fff; }
 
-    .role-toggle.selected-teach .toggle-check {
-      background: #0891b2;
-      border-color: #0891b2;
-      color: #fff;
-    }
-
-    /* ── Role tags in header ── */
-    .role-tags { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-
-    .role-tag {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 999px;
-    }
-
-    .role-tag-mgmt  { background: #e8f0dc; color: #4F6228; }
-    .role-tag-teach { background: #cffafe; color: #0e7490; }
-
-    /* ── N/A rows ── */
-    .doc-row.na {
-      opacity: 0.4;
-      pointer-events: none;
-      background: var(--grey-50);
-    }
-
-    .doc-row.na .doc-label { color: var(--grey-400); }
-
-    .na-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--grey-200);
-      color: var(--grey-400);
-      display: inline-block;
-      margin-left: 6px;
+    .modal-actions {
+      display: flex; justify-content: flex-end;
+      gap: 10px; margin-top: 22px;
     }
 
     /* Scrollbar */
@@ -603,25 +490,34 @@
 </head>
 <body>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <img src="logo.png" alt="Adventure Wellbeing School" style="height:48px;width:auto;display:block;margin-bottom:12px;border:2px solid #fff;border-radius:6px;padding:4px;" />
+<!-- Top bar -->
+<header class="topbar">
+  <img src="logo.png" alt="Adventure Wellbeing School" class="topbar-logo" />
+  <div class="topbar-title">
     <h1>Staff Onboarding Tracker</h1>
     <p>Safer Recruitment Documents</p>
   </div>
-  <button class="add-staff-btn" onclick="openModal()">
-    <span>+</span> Add New Staff Member
-  </button>
-  <div class="staff-list" id="staffList"></div>
-</aside>
+  <div class="topbar-actions" id="topbarActions">
+    <button class="btn btn-ghost" onclick="openModal()">+ Add Staff Member</button>
+  </div>
+</header>
 
-<!-- Main -->
-<main class="main">
-  <div class="main-header" id="mainHeader" style="display:none">
-    <div class="main-header-left">
-      <h2 id="headerName"></h2>
-      <p id="headerRole"></p>
+<!-- Dashboard view -->
+<div class="view active" id="viewDashboard">
+  <div class="dashboard">
+    <div class="dash-stats" id="dashStats"></div>
+    <div class="dash-section-title" id="dashSectionTitle"></div>
+    <div class="staff-grid" id="staffGrid"></div>
+  </div>
+</div>
+
+<!-- Detail view -->
+<div class="view" id="viewDetail">
+  <div class="detail-header">
+    <button class="btn btn-secondary" onclick="showDashboard()">← Back</button>
+    <div class="detail-header-info">
+      <h2 id="detailName"></h2>
+      <div class="detail-header-meta" id="detailMeta"></div>
     </div>
     <div class="progress-bar-wrap">
       <div class="progress-bar-track">
@@ -630,15 +526,8 @@
       <span class="progress-label" id="progressLabel"></span>
     </div>
   </div>
-
-  <div class="main-body" id="mainBody">
-    <div class="empty-state">
-      <div class="icon">📋</div>
-      <h3>No staff member selected</h3>
-      <p>Add a new staff member or select one from the sidebar</p>
-    </div>
-  </div>
-</main>
+  <div class="detail-body" id="detailBody"></div>
+</div>
 
 <!-- Add Staff Modal -->
 <div class="modal-overlay" id="modalOverlay">
@@ -690,7 +579,7 @@ const SECTIONS = [
     id: 'pre-interview',
     title: 'Pre-Interview Documents',
     icon: '📝',
-    color: '#e8f0dc',
+    color: '#ede9fe',
     items: [
       { id: 'app-form',      label: 'Application Form + Offence Disclaimer, Prohibition Consent' },
       { id: 'cv',            label: 'CV' },
@@ -707,9 +596,9 @@ const SECTIONS = [
     icon: '🎤',
     color: '#fef3c7',
     items: [
-      { id: 'interview-q',      label: 'Interview Questions' },
-      { id: 'qualifications',   label: 'Qualifications' },
-      { id: 'offence-disc',     label: 'Offence Disclaimer', note: 'to be reviewed' },
+      { id: 'interview-q',    label: 'Interview Questions' },
+      { id: 'qualifications', label: 'Qualifications' },
+      { id: 'offence-disc',   label: 'Offence Disclaimer', note: 'to be reviewed' },
     ]
   },
   {
@@ -718,12 +607,12 @@ const SECTIONS = [
     icon: '🔐',
     color: '#dbeafe',
     items: [
-      { id: 'health-decl',     label: 'Health Declaration' },
-      { id: 'safer-rec-cert',  label: 'Safer Recruitment Certificate' },
-      { id: 'dbs',             label: 'DBS (with Children\'s Barred List)' },
-      { id: 'prohibition',     label: 'Prohibition Check', note: 'Teaching roles only',  requiresTeaching: true },
-      { id: 'check-128',       label: '128 Check',        note: 'Management roles only', requiresManagement: true },
-      { id: 'overseas-crc',    label: 'Overseas Criminal Record Check' },
+      { id: 'health-decl',    label: 'Health Declaration' },
+      { id: 'safer-rec-cert', label: 'Safer Recruitment Certificate' },
+      { id: 'dbs',            label: 'DBS (with Children\'s Barred List)' },
+      { id: 'prohibition',    label: 'Prohibition Check', note: 'Teaching roles only',   requiresTeaching: true },
+      { id: 'check-128',      label: '128 Check',         note: 'Management roles only', requiresManagement: true },
+      { id: 'overseas-crc',   label: 'Overseas Criminal Record Check' },
     ]
   },
   {
@@ -752,10 +641,7 @@ const SECTIONS = [
 let state = { staff: [], selectedId: null };
 
 function loadState() {
-  const raw = localStorage.getItem('onboarding-tracker');
-  if (raw) {
-    try { state = JSON.parse(raw); } catch {}
-  }
+  try { state = JSON.parse(localStorage.getItem('onboarding-tracker') || '{"staff":[],"selectedId":null}'); } catch {}
 }
 
 function saveState() {
@@ -773,78 +659,128 @@ function isApplicable(item, person) {
 }
 
 function getTotalDocs(person) {
-  return SECTIONS.reduce((acc, sec) =>
-    acc + sec.items.filter(item => isApplicable(item, person)).length, 0);
+  return SECTIONS.reduce((acc, sec) => acc + sec.items.filter(i => isApplicable(i, person)).length, 0);
 }
 
 function countDocs(person) {
   return SECTIONS.reduce((acc, sec) =>
-    acc + sec.items.filter(item => isApplicable(item, person) && person.docs?.[item.id]?.checked).length, 0);
+    acc + sec.items.filter(i => isApplicable(i, person) && person.docs?.[i.id]?.checked).length, 0);
 }
 
-// ── Sidebar ──
-function renderSidebar() {
-  const list = document.getElementById('staffList');
-  if (!state.staff.length) {
-    list.innerHTML = '<div style="padding:12px;font-size:12px;color:rgba(255,255,255,0.4);text-align:center">No staff members yet</div>';
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+// ── Views ──
+function showDashboard() {
+  document.getElementById('viewDashboard').classList.add('active');
+  document.getElementById('viewDetail').classList.remove('active');
+  state.selectedId = null;
+  saveState();
+  renderDashboard();
+}
+
+function showDetail(id) {
+  state.selectedId = id;
+  saveState();
+  document.getElementById('viewDashboard').classList.remove('active');
+  document.getElementById('viewDetail').classList.add('active');
+  renderDetail();
+}
+
+// ── Dashboard ──
+function renderDashboard() {
+  const total    = state.staff.length;
+  const complete = state.staff.filter(p => countDocs(p) === getTotalDocs(p) && getTotalDocs(p) > 0).length;
+  const inProg   = state.staff.filter(p => countDocs(p) > 0 && countDocs(p) < getTotalDocs(p)).length;
+  const notStart = state.staff.filter(p => countDocs(p) === 0).length;
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#e8f0dc">👥</div>
+      <div class="stat-body"><div class="num">${total}</div><div class="lbl">Total Staff</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#ecfdf5">✅</div>
+      <div class="stat-body"><div class="num">${complete}</div><div class="lbl">Fully Onboarded</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fffbeb">⏳</div>
+      <div class="stat-body"><div class="num">${inProg}</div><div class="lbl">In Progress</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#f3f4f6">📋</div>
+      <div class="stat-body"><div class="num">${notStart}</div><div class="lbl">Not Started</div></div>
+    </div>`;
+
+  const titleEl = document.getElementById('dashSectionTitle');
+  titleEl.textContent = total ? `All Staff Members (${total})` : '';
+
+  const grid = document.getElementById('staffGrid');
+  if (!total) {
+    grid.innerHTML = `
+      <div class="empty-grid">
+        <div class="icon">📋</div>
+        <h3>No staff members yet</h3>
+        <p>Click "Add Staff Member" to get started</p>
+      </div>`;
     return;
   }
-  list.innerHTML = state.staff.map(person => {
+
+  grid.innerHTML = state.staff.map(person => {
     const done  = countDocs(person);
     const total = getTotalDocs(person);
-    const badgeCls = done === total ? 'badge-complete' : done > 0 ? 'badge-partial' : 'badge-empty';
-    const badgeTxt = done === total ? '✓ Complete' : `${done}/${total}`;
+    const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+    const badgeCls = done === total && total > 0 ? 'badge-complete' : done > 0 ? 'badge-partial' : 'badge-empty';
+    const badgeTxt = done === total && total > 0 ? '✓ Complete' : `${pct}% complete`;
+    const tags = [
+      person.isManagement ? '<span class="role-tag role-tag-mgmt">🏢 Management</span>' : '',
+      person.isTeaching   ? '<span class="role-tag role-tag-teach">🎓 Teaching</span>'   : '',
+    ].filter(Boolean).join('');
+
     return `
-      <div class="staff-item ${person.id === state.selectedId ? 'active' : ''}" onclick="selectStaff('${person.id}')">
-        <div class="staff-item-info">
-          <div class="staff-item-name">${esc(person.name)}</div>
-          <div class="staff-item-role">${esc(person.role || 'No role specified')}</div>
+      <div class="staff-card" onclick="showDetail('${person.id}')">
+        <button class="staff-card-delete" onclick="deleteStaff(event,'${person.id}')" title="Remove">✕</button>
+        <div class="staff-card-top">
+          <div class="staff-avatar">${esc(initials(person.name))}</div>
+          <span class="staff-card-badge ${badgeCls}">${badgeTxt}</span>
         </div>
-        <span class="staff-item-badge ${badgeCls}">${badgeTxt}</span>
-        <button class="staff-item-delete" onclick="deleteStaff(event,'${person.id}')" title="Remove">✕</button>
+        <div class="staff-card-name">${esc(person.name)}</div>
+        <div class="staff-card-role">${esc(person.role || 'No role specified')}${person.startDate ? ' · Starting ' + fmtDate(person.startDate) : ''}</div>
+        ${tags ? `<div class="role-tags">${tags}</div>` : '<div style="margin-bottom:14px"></div>'}
+        <div class="card-progress-track">
+          <div class="card-progress-fill${done === total && total > 0 ? ' complete' : ''}" style="width:${pct}%"></div>
+        </div>
+        <div class="card-progress-label">
+          <span>${done} of ${total} documents</span>
+          <span>${pct}%</span>
+        </div>
       </div>`;
   }).join('');
 }
 
-// ── Main panel ──
-function renderMain() {
+// ── Detail ──
+function renderDetail() {
   const person = getSelected();
-  const header = document.getElementById('mainHeader');
-  const body   = document.getElementById('mainBody');
+  if (!person) { showDashboard(); return; }
 
-  if (!person) {
-    header.style.display = 'none';
-    body.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">📋</div>
-        <h3>No staff member selected</h3>
-        <p>Add a new staff member or select one from the sidebar</p>
-      </div>`;
-    return;
-  }
+  document.getElementById('detailName').textContent = person.name;
 
-  header.style.display = 'flex';
-  document.getElementById('headerName').textContent = person.name;
-
-  const roleLine = (person.role || '') + (person.startDate ? '  ·  Starting ' + fmtDate(person.startDate) : '');
-  const roleTags = [
+  const tags = [
     person.isManagement ? '<span class="role-tag role-tag-mgmt">🏢 Management</span>' : '',
     person.isTeaching   ? '<span class="role-tag role-tag-teach">🎓 Teaching</span>'   : '',
   ].filter(Boolean).join('');
-  document.getElementById('headerRole').innerHTML =
-    `<span>${esc(roleLine)}</span>${roleTags ? `<span class="role-tags">${roleTags}</span>` : ''}`;
 
-  const done  = countDocs(person);
-  const total = getTotalDocs(person);
-  const pct   = total > 0 ? (done / total) * 100 : 0;
-  const fill  = document.getElementById('progressFill');
-  fill.style.width = pct + '%';
-  fill.className   = 'progress-bar-fill' + (done === total ? ' complete' : '');
-  document.getElementById('progressLabel').textContent = `${done} / ${total} documents`;
+  document.getElementById('detailMeta').innerHTML =
+    `<span>${esc(person.role || '')}</span>` +
+    (person.startDate ? `<span>· Starting ${fmtDate(person.startDate)}</span>` : '') +
+    (tags ? `<span class="role-tags" style="margin:0">${tags}</span>` : '');
 
-  body.innerHTML = SECTIONS.map(sec => {
-    const applicable = sec.items.filter(it => isApplicable(it, person));
-    const secDone    = applicable.filter(it => person.docs?.[it.id]?.checked).length;
+  updateProgress();
+
+  document.getElementById('detailBody').innerHTML = SECTIONS.map(sec => {
+    const applicable = sec.items.filter(i => isApplicable(i, person));
+    const secDone    = applicable.filter(i => person.docs?.[i.id]?.checked).length;
     return `
       <div class="section-card" id="sec-${sec.id}">
         <div class="section-header" onclick="toggleSection('${sec.id}')">
@@ -855,35 +791,28 @@ function renderMain() {
         </div>
         <div class="section-items">
           <div class="doc-row-header">
-            <span></span>
-            <span>Document</span>
-            <span>Date Received</span>
-            <span>Checked By</span>
+            <span></span><span>Document</span><span>Date Received</span><span>Checked By</span>
           </div>
           ${sec.items.map(item => {
-            const applicable = isApplicable(item, person);
+            const ok  = isApplicable(item, person);
             const d   = person.docs?.[item.id] || {};
-            const cls = !applicable ? ' na' : d.checked ? ' checked' : '';
+            const cls = !ok ? ' na' : d.checked ? ' checked' : '';
             return `
               <div class="doc-row${cls}" id="row-${item.id}">
                 <input type="checkbox" class="doc-checkbox"
-                  ${d.checked ? 'checked' : ''}
-                  ${!applicable ? 'disabled' : ''}
+                  ${d.checked ? 'checked' : ''} ${!ok ? 'disabled' : ''}
                   onchange="toggleDoc('${item.id}', this.checked)" />
                 <span class="doc-label">
                   ${esc(item.label)}
-                  ${!applicable
+                  ${!ok
                     ? '<span class="na-badge">N/A</span>'
                     : item.note ? `<span class="doc-tag">${esc(item.note)}</span>` : ''}
                 </span>
                 <input type="date" class="doc-date-input"
-                  value="${d.date || ''}"
-                  ${!applicable ? 'disabled' : ''}
+                  value="${d.date || ''}" ${!ok ? 'disabled' : ''}
                   onchange="updateDocField('${item.id}', 'date', this.value)" />
                 <input type="text" class="doc-checked-by"
-                  value="${esc(d.checkedBy || '')}"
-                  placeholder="${applicable ? 'Name...' : ''}"
-                  ${!applicable ? 'disabled' : ''}
+                  value="${esc(d.checkedBy || '')}" placeholder="${ok ? 'Name...' : ''}" ${!ok ? 'disabled' : ''}
                   oninput="updateDocField('${item.id}', 'checkedBy', this.value)" />
               </div>`;
           }).join('')}
@@ -893,24 +822,6 @@ function renderMain() {
 }
 
 // ── Actions ──
-function selectStaff(id) {
-  state.selectedId = id;
-  saveState();
-  renderSidebar();
-  renderMain();
-}
-
-function deleteStaff(e, id) {
-  e.stopPropagation();
-  const person = state.staff.find(s => s.id === id);
-  if (!confirm(`Remove ${person?.name || 'this staff member'}? This cannot be undone.`)) return;
-  state.staff = state.staff.filter(s => s.id !== id);
-  if (state.selectedId === id) state.selectedId = state.staff[0]?.id || null;
-  saveState();
-  renderSidebar();
-  renderMain();
-}
-
 function toggleDoc(itemId, checked) {
   const person = getSelected();
   if (!person) return;
@@ -919,16 +830,13 @@ function toggleDoc(itemId, checked) {
   person.docs[itemId].checked = checked;
   if (checked && !person.docs[itemId].date) {
     person.docs[itemId].date = new Date().toISOString().split('T')[0];
-    const dateInput = document.querySelector(`#row-${itemId} .doc-date-input`);
-    if (dateInput) dateInput.value = person.docs[itemId].date;
+    const di = document.querySelector(`#row-${itemId} .doc-date-input`);
+    if (di) di.value = person.docs[itemId].date;
   }
   const row = document.getElementById('row-' + itemId);
-  if (row) {
-    row.className = 'doc-row' + (checked ? ' checked' : '');
-  }
+  if (row) row.className = 'doc-row' + (checked ? ' checked' : '');
   saveState();
   updateProgress();
-  renderSidebar();
 }
 
 function updateDocField(itemId, field, value) {
@@ -947,18 +855,15 @@ function updateProgress() {
   const total = getTotalDocs(person);
   const pct   = total > 0 ? (done / total) * 100 : 0;
   const fill  = document.getElementById('progressFill');
-  if (fill) {
-    fill.style.width = pct + '%';
-    fill.className   = 'progress-bar-fill' + (done === total ? ' complete' : '');
-  }
+  if (fill) { fill.style.width = pct + '%'; fill.className = 'progress-bar-fill' + (done === total ? ' complete' : ''); }
   const lbl = document.getElementById('progressLabel');
   if (lbl) lbl.textContent = `${done} / ${total} documents`;
 
   SECTIONS.forEach(sec => {
     const card = document.getElementById('sec-' + sec.id);
     if (!card) return;
-    const applicable = sec.items.filter(it => isApplicable(it, person));
-    const secDone    = applicable.filter(it => person.docs?.[it.id]?.checked).length;
+    const applicable = sec.items.filter(i => isApplicable(i, person));
+    const secDone    = applicable.filter(i => person.docs?.[i.id]?.checked).length;
     const cnt = card.querySelector('.section-count');
     if (cnt) cnt.textContent = `${secDone} / ${applicable.length}`;
   });
@@ -969,20 +874,27 @@ function toggleSection(id) {
   if (card) card.classList.toggle('collapsed');
 }
 
+function deleteStaff(e, id) {
+  e.stopPropagation();
+  const person = state.staff.find(s => s.id === id);
+  if (!confirm(`Remove ${person?.name || 'this staff member'}? This cannot be undone.`)) return;
+  state.staff = state.staff.filter(s => s.id !== id);
+  state.selectedId = null;
+  saveState();
+  showDashboard();
+}
+
 // ── Modal ──
 function toggleRole(type) {
-  const el    = document.getElementById('toggle' + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
-  const check = document.getElementById('check'  + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
-  const cls   = type === 'mgmt' ? 'selected-mgmt' : 'selected-teach';
-  const active = el.classList.toggle(cls);
-  check.textContent = active ? '✓' : '';
+  const el  = document.getElementById('toggle' + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
+  const chk = document.getElementById('check'  + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
+  const cls = type === 'mgmt' ? 'selected-mgmt' : 'selected-teach';
+  const on  = el.classList.toggle(cls);
+  chk.textContent = on ? '✓' : '';
 }
 
 function openModal() {
-  document.getElementById('inputName').value  = '';
-  document.getElementById('inputRole').value  = '';
-  document.getElementById('inputStart').value = '';
-  // reset role toggles
+  ['inputName','inputRole','inputStart'].forEach(id => document.getElementById(id).value = '');
   ['Mgmt','Teach'].forEach(t => {
     document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
     document.getElementById('check'  + t).textContent = '';
@@ -1001,16 +913,11 @@ function addStaff() {
   const start        = document.getElementById('inputStart').value;
   const isManagement = document.getElementById('toggleMgmt').classList.contains('selected-mgmt');
   const isTeaching   = document.getElementById('toggleTeach').classList.contains('selected-teach');
-
   if (!name) { document.getElementById('inputName').focus(); return; }
-
-  const person = { id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} };
-  state.staff.push(person);
-  state.selectedId = person.id;
+  state.staff.push({ id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} });
   saveState();
   closeModal();
-  renderSidebar();
-  renderMain();
+  renderDashboard();
 }
 
 // ── Helpers ──
@@ -1020,23 +927,14 @@ function esc(str) {
 
 function fmtDate(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
 }
 
-// ── Close modal on overlay click ──
-document.getElementById('modalOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('inputName').addEventListener('keydown', e => { if (e.key === 'Enter') addStaff(); });
 
-document.getElementById('inputName').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addStaff();
-});
-
-// ── Init ──
 loadState();
-renderSidebar();
-renderMain();
+renderDashboard();
 </script>
 </body>
 </html>
