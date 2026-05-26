@@ -297,6 +297,9 @@
       display: flex;
       align-items: center;
       gap: 16px;
+      position: sticky;
+      top: 64px;
+      z-index: 40;
     }
 
     .detail-header-info { flex: 1; }
@@ -703,6 +706,7 @@ function showDetail(id) {
   saveState();
   document.getElementById('viewDashboard').classList.remove('active');
   document.getElementById('viewDetail').classList.add('active');
+  window.scrollTo(0, 0);
   renderDetail();
 }
 
