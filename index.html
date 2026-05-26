@@ -242,6 +242,23 @@
       justify-content: space-between;
     }
 
+    .staff-card-edit {
+      position: absolute;
+      top: 14px;
+      right: 38px;
+      background: none;
+      border: none;
+      color: var(--grey-300);
+      cursor: pointer;
+      font-size: 15px;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .staff-card:hover .staff-card-edit { color: var(--grey-400); }
+    .staff-card-edit:hover { color: var(--primary) !important; }
+
     .staff-card-delete {
       position: absolute;
       top: 14px;
@@ -516,6 +533,7 @@
 <div class="view" id="viewDetail">
   <div class="detail-header">
     <button class="btn btn-secondary" onclick="showDashboard()">← Back</button>
+    <button class="btn btn-ghost" onclick="openEditModal(null, state.selectedId)" style="font-size:13px">✎ Edit</button>
     <div class="detail-header-info">
       <h2 id="detailName"></h2>
       <div class="detail-header-meta" id="detailMeta"></div>
@@ -533,7 +551,7 @@
 <!-- Add Staff Modal -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <h3>Add New Staff Member</h3>
+    <h3 id="modalTitle">Add New Staff Member</h3>
     <div class="form-group">
       <label>Full Name *</label>
       <input type="text" id="inputName" placeholder="e.g. Jane Smith" />
@@ -569,7 +587,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="addStaff()">Add Staff Member</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveStaff()">Add Staff Member</button>
     </div>
   </div>
 </div>
@@ -740,6 +758,7 @@ function renderDashboard() {
 
     return `
       <div class="staff-card" onclick="showDetail('${person.id}')">
+        <button class="staff-card-edit" onclick="openEditModal(event,'${person.id}')" title="Edit">✎</button>
         <button class="staff-card-delete" onclick="deleteStaff(event,'${person.id}')" title="Remove">✕</button>
         <div class="staff-card-top">
           <div class="staff-avatar">${esc(initials(person.name))}</div>
@@ -885,6 +904,34 @@ function deleteStaff(e, id) {
 }
 
 // ── Modal ──
+let editingId = null;
+
+function openEditModal(e, id) {
+  if (e) e.stopPropagation();
+  const person = state.staff.find(s => s.id === id);
+  if (!person) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent   = 'Edit Staff Member';
+  document.getElementById('modalSaveBtn').textContent = 'Save Changes';
+  document.getElementById('inputName').value  = person.name;
+  document.getElementById('inputRole').value  = person.role || '';
+  document.getElementById('inputStart').value = person.startDate || '';
+  ['Mgmt','Teach'].forEach(t => {
+    document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
+    document.getElementById('check'  + t).textContent = '';
+  });
+  if (person.isManagement) {
+    document.getElementById('toggleMgmt').classList.add('selected-mgmt');
+    document.getElementById('checkMgmt').textContent = '✓';
+  }
+  if (person.isTeaching) {
+    document.getElementById('toggleTeach').classList.add('selected-teach');
+    document.getElementById('checkTeach').textContent = '✓';
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('inputName').focus(), 50);
+}
+
 function toggleRole(type) {
   const el  = document.getElementById('toggle' + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
   const chk = document.getElementById('check'  + (type === 'mgmt' ? 'Mgmt' : 'Teach'));
@@ -894,6 +941,9 @@ function toggleRole(type) {
 }
 
 function openModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent   = 'Add New Staff Member';
+  document.getElementById('modalSaveBtn').textContent = 'Add Staff Member';
   ['inputName','inputRole','inputStart'].forEach(id => document.getElementById(id).value = '');
   ['Mgmt','Teach'].forEach(t => {
     document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
@@ -907,17 +957,25 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
 }
 
-function addStaff() {
+function saveStaff() {
   const name         = document.getElementById('inputName').value.trim();
   const role         = document.getElementById('inputRole').value.trim();
   const start        = document.getElementById('inputStart').value;
   const isManagement = document.getElementById('toggleMgmt').classList.contains('selected-mgmt');
   const isTeaching   = document.getElementById('toggleTeach').classList.contains('selected-teach');
   if (!name) { document.getElementById('inputName').focus(); return; }
-  state.staff.push({ id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} });
-  saveState();
-  closeModal();
-  renderDashboard();
+  if (editingId) {
+    const person = state.staff.find(s => s.id === editingId);
+    if (person) { person.name = name; person.role = role; person.startDate = start; person.isManagement = isManagement; person.isTeaching = isTeaching; }
+    saveState();
+    closeModal();
+    if (state.selectedId === editingId) renderDetail(); else renderDashboard();
+  } else {
+    state.staff.push({ id: Date.now().toString(), name, role, startDate: start, isManagement, isTeaching, docs: {} });
+    saveState();
+    closeModal();
+    renderDashboard();
+  }
 }
 
 // ── Helpers ──
@@ -931,7 +989,7 @@ function fmtDate(iso) {
 }
 
 document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.getElementById('inputName').addEventListener('keydown', e => { if (e.key === 'Enter') addStaff(); });
+document.getElementById('inputName').addEventListener('keydown', e => { if (e.key === 'Enter') saveStaff(); });
 
 loadState();
 renderDashboard();
