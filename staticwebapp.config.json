@@ -2,6 +2,7 @@
   "auth": {
     "identityProviders": {
       "azureActiveDirectory": {
+        "userDetailsClaim": "preferred_username",
         "registration": {
           "openIdIssuer": "https://login.microsoftonline.com/f287a466-fcec-432c-bce9-4e495a56f3c6/v2.0",
           "clientIdSettingName": "AAD_CLIENT_ID",
@@ -9,5 +10,17 @@
         }
       }
     }
+  },
+  "routes": [
+    { "route": "/admin.html",  "allowedRoles": ["authenticated"] },
+    { "route": "/api/*",       "allowedRoles": ["authenticated"] },
+    { "route": "/.auth/login/github",   "statusCode": 404 },
+    { "route": "/.auth/login/twitter",  "statusCode": 404 },
+    { "route": "/.auth/login/google",   "statusCode": 404 },
+    { "route": "/.auth/login/facebook", "statusCode": 404 },
+    { "route": "/*", "allowedRoles": ["anonymous"] }
+  ],
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/aad?post_login_redirect_uri=/", "statusCode": 302 }
   }
 }
