@@ -688,6 +688,10 @@ async function init() {
     if (!principal) { showScreen('login'); return; }
 
     const res  = await fetch('/api/checkAccess');
+    if (!res.ok && res.status !== 200) {
+      const text = await res.text();
+      throw new Error('API returned ' + res.status + ': ' + text.slice(0, 100));
+    }
     const user = await res.json();
 
     if (!user.hasAccess) {
