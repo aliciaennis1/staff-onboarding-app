@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const { runChase } = require("../shared/references");
 
-// Called once a day by the GitHub "Chase references" workflow with the shared CHASE_KEY.
+// Called each weekday at 8am UK time by the Azure Logic App la-aws-onboarding-chase with the shared CHASE_KEY.
 module.exports = async function (context, req) {
   const key = process.env.CHASE_KEY || "";
   const given = String(req.headers["x-chase-key"] || "");
