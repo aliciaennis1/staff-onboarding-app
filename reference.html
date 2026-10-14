@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Reference Questionnaire</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #4F6228; --primary-light: #5a7030; --primary-dark: #3d4e1f; --primary-bg: #e8f0dc;
+      --danger: #b91c1c; --danger-bg: #fef2f2;
+      --grey-50: #f9fafb; --grey-100: #f3f4f6; --grey-200: #e5e7eb; --grey-300: #d1d5db;
+      --grey-400: #9ca3af; --grey-600: #4b5563; --grey-700: #374151; --grey-800: #1f2937;
+    }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--grey-100); color: var(--grey-800); line-height: 1.5; }
+    header { background: var(--primary-dark); color: #fff; padding: 18px 16px; }
+    .head-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+    header img { height: 48px; background: #fff; border-radius: 8px; padding: 4px; }
+    header h1 { font-size: 19px; font-weight: 700; }
+    header p { font-size: 13px; opacity: .8; }
+    main { max-width: 820px; margin: 0 auto; padding: 22px 16px 60px; }
+    .card { background: #fff; border: 1px solid var(--grey-200); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+    .card h2 { font-size: 16px; color: var(--primary-dark); margin-bottom: 4px; }
+    .card .intro { font-size: 13px; color: var(--grey-600); margin-bottom: 14px; }
+    .about { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 14px; }
+    .about dt { color: var(--grey-600); }
+    .about dd { font-weight: 600; }
+    .field { margin-top: 14px; }
+    .field > label, .field > .q { display: block; font-size: 14px; font-weight: 600; color: var(--grey-700); margin-bottom: 6px; }
+    .req { color: var(--danger); }
+    .hint { font-size: 12px; color: var(--grey-400); font-weight: 400; margin-left: 4px; }
+    input[type=text], input[type=tel], input[type=date], textarea {
+      width: 100%; font: inherit; font-size: 14px; padding: 9px 12px; border: 1.5px solid var(--grey-200);
+      border-radius: 8px; background: var(--grey-50); color: var(--grey-800);
+    }
+    input[type=date] { max-width: 220px; }
+    textarea { resize: vertical; min-height: 84px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary-light); background: #fff; }
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .choices label { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1.5px solid var(--grey-200);
+      border-radius: 999px; font-size: 14px; cursor: pointer; background: var(--grey-50); }
+    .choices input { accent-color: var(--primary); }
+    .choices label:has(input:checked) { border-color: var(--primary-light); background: var(--primary-bg); font-weight: 600; }
+    .ratings { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ratings th { font-weight: 600; color: var(--grey-600); padding: 6px 4px; text-align: center; font-size: 12px; }
+    .ratings th:first-child { text-align: left; }
+    .ratings td { border-top: 1px solid var(--grey-100); padding: 8px 4px; text-align: center; }
+    .ratings td:first-child { text-align: left; font-weight: 500; color: var(--grey-700); }
+    .ratings input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+    .ratings tr.missing td:first-child { color: var(--danger); }
+    .declare { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; margin-top: 6px; }
+    .declare input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+    .note { font-size: 13px; color: var(--grey-600); margin-top: 12px; }
+    .btn { display: inline-block; font: inherit; font-size: 15px; font-weight: 700; padding: 13px 30px; border: none; border-radius: 8px;
+      background: var(--primary-light); color: #fff; cursor: pointer; }
+    .btn:hover { background: var(--primary); }
+    .btn:disabled { opacity: .6; cursor: default; }
+    .error { background: var(--danger-bg); color: var(--danger); border-radius: 8px; padding: 12px 14px; font-size: 14px; margin-bottom: 14px; display: none; }
+    .field.invalid input, .field.invalid textarea { border-color: var(--danger); }
+    .field.invalid .choices label { border-color: #fca5a5; }
+    .centre { text-align: center; padding: 50px 22px; }
+    .centre h2 { font-size: 20px; margin-bottom: 8px; color: var(--grey-800); }
+    .centre p { color: var(--grey-600); }
+    .tick { font-size: 44px; color: var(--primary); margin-bottom: 8px; }
+    @media (max-width: 640px) {
+      .card { padding: 18px 16px; }
+      .ratings thead { display: none; }
+      .ratings tr { display: block; padding: 10px 0; border-top: 1px solid var(--grey-100); }
+      .ratings td { display: inline-block; border: none; padding: 4px 6px 4px 0; text-align: left; }
+      .ratings td:first-child { display: block; padding-bottom: 6px; }
+      .ratings td label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; padding: 5px 10px; border: 1px solid var(--grey-200); border-radius: 999px; }
+      .ratings td label span { display: inline !important; }
+      .about { grid-template-columns: 1fr; gap: 0; }
+      .about dd { margin-bottom: 8px; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <img src="logo.png" alt="Adventure Wellbeing School" />
+    <div>
+      <h1>Reference Questionnaire</h1>
+      <p>Adventure Wellbeing School · Strictly private and confidential</p>
+    </div>
+  </div>
+</header>
+<main id="main">
+  <div class="card centre"><p>Loading...</p></div>
+</main>
+
+<script src="reference-form.js"></script>
+<script>
+const token = new URLSearchParams(location.search).get('t') || '';
+const main = document.getElementById('main');
+let info = null;
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function message(title, text, ok) {
+  main.innerHTML = `<div class="card centre">${ok ? '<div class="tick">✓</div>' : ''}<h2>${esc(title)}</h2><p>${esc(text)}</p></div>`;
+}
+
+async function load() {
+  try {
+    const res = await fetch('/api/referee?t=' + encodeURIComponent(token));
+    const data = await res.json();
+    if (!res.ok) return message('Link not active', data.error || 'This link is no longer active.');
+    if (data.done) return message('Reference already received', `Thank you. We have already received your reference for ${data.candidateName}.`, true);
+    info = data;
+    render();
+  } catch (e) {
+    message('Something went wrong', 'Please check your connection and refresh the page.');
+  }
+}
+
+function fieldHtml(f) {
+  if (f.type === 'ratings') {
+    return `<table class="ratings"><thead><tr><th></th>${RATING_SCALE.map(r => `<th>${r}</th>`).join('')}</tr></thead><tbody>
+      ${RATING_STATEMENTS.map((s, i) => `<tr id="rrow_${i}"><td>${esc(s)}</td>${RATING_SCALE.map(r =>
+        `<td><label><input type="radio" name="rating_${i}" value="${r}" aria-label="${esc(s)}: ${r}" /><span style="display:none">${r}</span></label></td>`).join('')}</tr>`).join('')}
+    </tbody></table>`;
+  }
+  const label = `${esc(f.label)}${f.required ? ' <span class="req">*</span>' : ''}${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ''}`;
+  const hidden = f.showIf ? ' style="display:none"' : '';
+  if (f.type === 'choice') {
+    return `<div class="field" id="f_${f.id}"${hidden}><span class="q">${label}</span><div class="choices">
+      ${f.options.map(o => `<label><input type="radio" name="${f.id}" value="${o}" /> ${o}</label>`).join('')}</div></div>`;
+  }
+  const input = f.type === 'textarea'
+    ? `<textarea id="${f.id}" name="${f.id}" rows="${f.rows || 3}"></textarea>`
+    : `<input type="${f.type}" id="${f.id}" name="${f.id}" />`;
+  return `<div class="field" id="f_${f.id}"${hidden}><label for="${f.id}">${label}</label>${input}</div>`;
+}
+
+function render() {
+  main.innerHTML = `
+    <div class="card">
+      <h2>Reference for ${esc(info.candidateName)}</h2>
+      <p class="intro">Thank you for agreeing to give a reference. It takes about 10 minutes. Questions marked <span class="req">*</span> are required.</p>
+      <dl class="about">
+        <dt>Candidate</dt><dd>${esc(info.candidateName)}</dd>
+        <dt>Position applied for</dt><dd>${esc(info.position || 'Not stated')}</dd>
+      </dl>
+    </div>
+    <form id="refForm" novalidate>
+      ${REFERENCE_FORM.map(sec => `
+        <div class="card">
+          <h2>${esc(sec.title)}</h2>
+          ${sec.intro ? `<p class="intro">${esc(sec.intro)}</p>` : ''}
+          ${sec.fields.map(fieldHtml).join('')}
+        </div>`).join('')}
+      <div class="card">
+        <h2>Declaration</h2>
+        <label class="declare"><input type="checkbox" id="declaration" /> <span>${esc(DECLARATION_TEXT)} <span class="req">*</span></span></label>
+        <div class="field" id="f_signature">
+          <label for="signature">Type your full name as your signature <span class="req">*</span></label>
+          <input type="text" id="signature" autocomplete="name" />
+        </div>
+        <p class="note">Date: ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+      </div>
+      <div class="error" id="err"></div>
+      <button type="submit" class="btn" id="submitBtn">Submit reference</button>
+    </form>`;
+
+  const form = document.getElementById('refForm');
+  if (info.refereeName) document.getElementById('refName').value = info.refereeName;
+  if (info.refereeOrg) document.getElementById('refOrg').value = info.refereeOrg;
+  form.addEventListener('change', updateShowIf);
+  form.addEventListener('submit', submit);
+}
+
+function allFields() { return REFERENCE_FORM.flatMap(s => s.fields).filter(f => f.type !== 'ratings'); }
+
+function valueOf(f) {
+  if (f.type === 'choice') return (document.querySelector(`input[name="${f.id}"]:checked`) || {}).value || '';
+  return document.getElementById(f.id).value.trim();
+}
+
+function isShown(f) { return !f.showIf || valueOf(allFields().find(x => x.id === f.showIf[0])) === f.showIf[1]; }
+
+function updateShowIf() {
+  allFields().filter(f => f.showIf).forEach(f => {
+    document.getElementById('f_' + f.id).style.display = isShown(f) ? '' : 'none';
+  });
+}
+
+async function submit(ev) {
+  ev.preventDefault();
+  const err = document.getElementById('err');
+  const response = {};
+  const missing = [];
+  document.querySelectorAll('.invalid, .missing').forEach(el => el.classList.remove('invalid', 'missing'));
+
+  allFields().forEach(f => {
+    if (!isShown(f)) return;
+    const v = valueOf(f);
+    if (v) response[f.id] = v;
+    if (f.required && !v) { missing.push(f.label); document.getElementById('f_' + f.id).classList.add('invalid'); }
+  });
+  RATING_STATEMENTS.forEach((s, i) => {
+    const v = (document.querySelector(`input[name="rating_${i}"]:checked`) || {}).value;
+    if (v) response['rating_' + i] = v; else { missing.push('Rating: ' + s); document.getElementById('rrow_' + i).classList.add('missing'); }
+  });
+  response.signature = document.getElementById('signature').value.trim();
+  response.declaration = document.getElementById('declaration').checked;
+  if (!response.signature) { missing.push('Signature'); document.getElementById('f_signature').classList.add('invalid'); }
+  if (!response.declaration) missing.push('Declaration');
+
+  if (missing.length) {
+    err.textContent = `Please complete ${missing.length === 1 ? 'this question' : 'these ' + missing.length + ' questions'}: ` + missing.slice(0, 4).map(m => m.length > 60 ? m.slice(0, 57) + '...' : m).join('; ') + (missing.length > 4 ? '; and more.' : '.');
+    err.style.display = 'block';
+    (document.querySelector('.invalid, .missing') || err).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  err.style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const res = await fetch('/api/referee', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t: token, response }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not submit');
+    window.scrollTo(0, 0);
+    message('Thank you', `Your reference for ${info.candidateName} has been sent to Adventure Wellbeing School. You can close this page.`, true);
+  } catch (e) {
+    err.textContent = e.message; err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Submit reference';
+  }
+}
+
+load();
+</script>
+</body>
+</html>

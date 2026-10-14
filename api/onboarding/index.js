@@ -1,26 +1,10 @@
-const { TableClient } = require("@azure/data-tables");
-
-function getPrincipal(req) {
-  const header = req.headers["x-ms-client-principal"];
-  if (!header) return null;
-  try {
-    return JSON.parse(Buffer.from(header, "base64").toString("utf8"));
-  } catch { return null; }
-}
+const { getTable, requireStaff } = require("../shared/auth");
 
 async function getClient(connStr) {
-  const client = TableClient.fromConnectionString(connStr, "onboardingStaff");
-  try { await client.createTable(); } catch(e) { if (e.statusCode !== 409) throw e; }
-  return client;
+  return getTable(connStr, "onboardingStaff");
 }
 
 module.exports = async function (context, req) {
-  const principal = getPrincipal(req);
-  if (!principal) {
-    context.res = { status: 401, body: JSON.stringify({ error: "Not authenticated" }) };
-    return;
-  }
-
   const connStr = process.env.STORAGE_CONNECTION_STRING;
   if (!connStr) {
     context.res = { status: 500, body: JSON.stringify({ error: "Storage not configured" }) };
@@ -30,6 +14,9 @@ module.exports = async function (context, req) {
   const method = req.method.toUpperCase();
 
   try {
+    const me = await requireStaff(req, connStr);
+    if (me.error) { context.res = { status: me.status, body: JSON.stringify({ error: me.error }) }; return; }
+
     const client = await getClient(connStr);
 
     if (method === "GET") {
@@ -91,6 +78,11 @@ module.exports = async function (context, req) {
       const id = req.query.id;
       if (!id) { context.res = { status: 400, body: JSON.stringify({ error: "id required" }) }; return; }
       await client.deleteEntity("staff", id);
+      // Remove this person's reference requests and responses too
+      const refs = await getTable(connStr, "onboardingReferences");
+      for await (const r of refs.listEntities({ queryOptions: { filter: `PartitionKey eq 'ref' and staffId eq '${String(id).replace(/'/g, "''")}'` } })) {
+        await refs.deleteEntity("ref", r.rowKey);
+      }
       context.res = { status: 204 };
       return;
     }

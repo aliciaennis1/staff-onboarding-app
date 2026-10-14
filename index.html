@@ -103,7 +103,7 @@
 
     .dash-stats {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 16px;
       margin-bottom: 28px;
     }
@@ -552,6 +552,72 @@
     }
     .notif.show { opacity: 1; }
     .notif.error { background: #dc2626; }
+
+    /* ── Start date priority ── */
+    .card-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+    .chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+    .chip-red   { background: #fef2f2; color: #b91c1c; }
+    .chip-amber { background: var(--warning-bg); color: #b45309; }
+    .chip-blue  { background: #eff6ff; color: #1d4ed8; }
+    .chip-green { background: var(--success-bg); color: var(--success); }
+    .chip-grey  { background: var(--grey-100); color: var(--grey-600); }
+    .staff-card.urgent { border-color: #fca5a5; box-shadow: inset 4px 0 0 #dc2626; }
+    .staff-card.soon   { box-shadow: inset 4px 0 0 #f59e0b; }
+
+    /* ── References ── */
+    .refs-intro { font-size: 13px; color: var(--grey-600); padding: 14px 20px 0; }
+    .refs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 20px 20px; }
+    .ref-slot { border: 1px solid var(--grey-200); border-radius: 10px; padding: 16px; background: var(--grey-50); }
+    .ref-slot h4 { font-size: 13px; font-weight: 700; color: var(--grey-800); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .ref-who { font-size: 14px; font-weight: 600; color: var(--grey-800); }
+    .ref-sub { font-size: 12px; color: var(--grey-600); margin-top: 2px; word-break: break-word; }
+    .ref-line { font-size: 12px; color: var(--grey-600); margin-top: 8px; }
+    .ref-line.err { color: #b91c1c; }
+    .ref-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .ref-actions .btn { padding: 6px 12px; font-size: 12px; }
+    .btn-outline { background: #fff; color: var(--grey-700); border: 1px solid var(--grey-300); }
+    .btn-outline:hover { background: var(--grey-100); }
+    .btn-danger-text { background: none; color: #b91c1c; }
+    .btn-danger-text:hover { background: #fef2f2; }
+    .ref-form input { width: 100%; padding: 8px 10px; border: 1px solid var(--grey-300); border-radius: 7px; font-size: 13px; margin-bottom: 8px; background: #fff; }
+    .ref-form input:focus { outline: none; border-color: var(--primary-light); }
+
+    .modal-wide { width: 780px; max-height: 90vh; overflow-y: auto; padding: 0; }
+    .rv-head { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--grey-200); padding: 18px 24px; display: flex; gap: 12px; align-items: flex-start; z-index: 1; }
+    .rv-head h3 { margin: 0; flex: 1; }
+    .rv-head .rv-meta { font-size: 12px; color: var(--grey-600); font-weight: 400; margin-top: 4px; }
+    .rv-body { padding: 8px 24px 24px; }
+    .rv-sec { margin-top: 18px; }
+    .rv-sec h5 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); margin-bottom: 8px; }
+    .rv-q { display: grid; grid-template-columns: 42% 1fr; gap: 12px; padding: 7px 0; border-top: 1px solid var(--grey-100); font-size: 13px; }
+    .rv-q .q { color: var(--grey-600); }
+    .rv-q .a { color: var(--grey-800); white-space: pre-wrap; word-break: break-word; }
+    .rv-q .a.flag { color: #b91c1c; font-weight: 700; }
+    .rv-q .a.blank { color: var(--grey-400); }
+    .rv-ratings { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .rv-ratings td, .rv-ratings th { border-top: 1px solid var(--grey-100); padding: 5px 4px; text-align: center; }
+    .rv-ratings th { color: var(--grey-600); font-weight: 600; }
+    .rv-ratings td:first-child, .rv-ratings th:first-child { text-align: left; }
+    .rv-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+    .rv-approve { margin-top: 22px; padding: 16px; border-radius: 10px; background: var(--primary-bg); }
+    .rv-approve textarea { width: 100%; margin: 8px 0 10px; padding: 8px 10px; border: 1px solid var(--grey-300); border-radius: 7px; font: inherit; font-size: 13px; }
+    .rv-history { font-size: 12px; color: var(--grey-600); }
+    .rv-history div { padding: 3px 0; }
+
+    @media (max-width: 760px) {
+      .refs-grid { grid-template-columns: 1fr; }
+      .rv-q { grid-template-columns: 1fr; gap: 2px; }
+      .dashboard { padding: 20px 16px 40px; }
+      .topbar { padding: 0 16px; }
+    }
+
+    @media print {
+      body.printing > *:not(#refOverlay) { display: none !important; }
+      body.printing #refOverlay { position: static; display: block; background: none; }
+      body.printing .modal-wide { width: auto; max-height: none; overflow: visible; box-shadow: none; }
+      body.printing .rv-head { position: static; }
+      body.printing .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -676,6 +742,12 @@
   </div>
 </div>
 
+<!-- Reference viewer -->
+<div class="modal-overlay" id="refOverlay">
+  <div class="modal modal-wide" id="refViewer"></div>
+</div>
+
+<script src="reference-form.js"></script>
 <script>
 // ── Auth ──
 async function init() {
@@ -740,11 +812,15 @@ function notify(msg, isError) {
 }
 
 // ── Data ──
-let state = { staff: [], selectedId: null };
+let state = { staff: [], refs: [], selectedId: null };
 
 async function loadData() {
-  const records = await apiCall('GET', '/api/onboarding');
+  const [records, refs] = await Promise.all([
+    apiCall('GET', '/api/onboarding'),
+    apiCall('GET', '/api/references').catch(() => [])
+  ]);
   state.staff = Array.isArray(records) ? records : [];
+  state.refs  = Array.isArray(refs) ? refs : [];
 }
 
 const SECTIONS = [
@@ -858,12 +934,61 @@ function showDetail(id) {
   renderDetail();
 }
 
+// ── Start date priority ──
+function daysUntil(iso) {
+  if (!iso) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((new Date(iso + 'T00:00:00') - today) / 864e5);
+}
+
+function isComplete(p) { const t = getTotalDocs(p); return t > 0 && countDocs(p) === t; }
+
+// 'urgent' = starts within 7 days (or has started) with checks outstanding, 'soon' = within 21 days
+function urgency(p) {
+  const d = daysUntil(p.startDate);
+  if (d === null || isComplete(p)) return '';
+  return d <= 7 ? 'urgent' : d <= 21 ? 'soon' : '';
+}
+
+function startChip(p) {
+  const d = daysUntil(p.startDate);
+  if (d === null) return '<span class="chip chip-grey">No start date</span>';
+  if (isComplete(p)) return `<span class="chip chip-grey">${d < 0 ? 'Started' : 'Starts'} ${fmtDate(p.startDate)}</span>`;
+  const u = urgency(p);
+  const cls = u === 'urgent' ? 'chip-red' : u === 'soon' ? 'chip-amber' : 'chip-grey';
+  const txt = d < 0 ? `Started ${-d} day${d === -1 ? '' : 's'} ago` : d === 0 ? 'Starts today' : d === 1 ? 'Starts tomorrow' : `Starts in ${d} days`;
+  return `<span class="chip ${cls}">${txt}</span>`;
+}
+
+// Incomplete staff first, soonest start date at the top; no start date after dated ones
+function sortedStaff() {
+  return [...state.staff].sort((a, b) => {
+    const ca = isComplete(a), cb = isComplete(b);
+    if (ca !== cb) return ca ? 1 : -1;
+    const da = a.startDate || '9999', db = b.startDate || '9999';
+    return da.localeCompare(db) || a.name.localeCompare(b.name);
+  });
+}
+
+function refChip(personId) {
+  const refs = state.refs.filter(r => r.staffId === personId);
+  const overdue = refs.filter(r => r.status === 'requested' && r.overdueAt).length;
+  const waiting = refs.filter(r => r.status === 'requested' && !r.overdueAt).length;
+  const review  = refs.filter(r => r.status === 'received').length;
+  return (overdue ? `<span class="chip chip-red">${overdue > 1 ? overdue + ' references' : 'Reference'} overdue</span>` : '') +
+    (review ? `<span class="chip chip-blue">${review > 1 ? review + ' references' : 'Reference'} to review</span>` : '') +
+    (waiting ? `<span class="chip chip-amber">${waiting} reference${waiting > 1 ? 's' : ''} waiting</span>` : '');
+}
+
 // ── Dashboard ──
 function renderDashboard() {
   const total    = state.staff.length;
-  const complete = state.staff.filter(p => countDocs(p) === getTotalDocs(p) && getTotalDocs(p) > 0).length;
-  const inProg   = state.staff.filter(p => countDocs(p) > 0 && countDocs(p) < getTotalDocs(p)).length;
+  const complete = state.staff.filter(isComplete).length;
+  const inProg   = state.staff.filter(p => countDocs(p) > 0 && !isComplete(p)).length;
   const notStart = state.staff.filter(p => countDocs(p) === 0).length;
+  const soon     = state.staff.filter(p => urgency(p) === 'urgent' || (urgency(p) === 'soon' && daysUntil(p.startDate) <= 14)).length;
+  const refsOpen = state.refs.filter(r => r.status === 'requested' || r.status === 'received').length;
+  const refsOverdue = state.refs.filter(r => r.status === 'requested' && r.overdueAt).length;
 
   document.getElementById('dashStats').innerHTML = `
     <div class="stat-card">
@@ -881,10 +1006,18 @@ function renderDashboard() {
     <div class="stat-card">
       <div class="stat-icon" style="background:#f3f4f6">📋</div>
       <div class="stat-body"><div class="num">${notStart}</div><div class="lbl">Not Started</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#fef2f2">📅</div>
+      <div class="stat-body"><div class="num">${soon}</div><div class="lbl">Starting in 2 weeks, not complete</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#eff6ff">✉️</div>
+      <div class="stat-body"><div class="num">${refsOpen}</div><div class="lbl">References outstanding${refsOverdue ? ` · <span style="color:#b91c1c;font-weight:700">${refsOverdue} overdue</span>` : ''}</div></div>
     </div>`;
 
   const titleEl = document.getElementById('dashSectionTitle');
-  titleEl.textContent = total ? `All Staff Members (${total})` : '';
+  titleEl.textContent = total ? `All Staff Members (${total}), soonest start date first` : '';
 
   const grid = document.getElementById('staffGrid');
   if (!total) {
@@ -897,7 +1030,7 @@ function renderDashboard() {
     return;
   }
 
-  grid.innerHTML = state.staff.map(person => {
+  grid.innerHTML = sortedStaff().map(person => {
     const done  = countDocs(person);
     const total = getTotalDocs(person);
     const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -909,7 +1042,7 @@ function renderDashboard() {
     ].filter(Boolean).join('');
 
     return `
-      <div class="staff-card" onclick="showDetail('${person.id}')">
+      <div class="staff-card ${urgency(person)}" onclick="showDetail('${person.id}')">
         <button class="staff-card-edit" onclick="openEditModal(event,'${person.id}')" title="Edit">✎</button>
         <button class="staff-card-delete" onclick="deleteStaff(event,'${person.id}')" title="Remove">✕</button>
         <div class="staff-card-top">
@@ -917,8 +1050,9 @@ function renderDashboard() {
           <span class="staff-card-badge ${badgeCls}">${badgeTxt}</span>
         </div>
         <div class="staff-card-name">${esc(person.name)}</div>
-        <div class="staff-card-role">${esc(person.role || 'No role specified')}${person.startDate ? ' · Starting ' + fmtDate(person.startDate) : ''}</div>
-        ${tags ? `<div class="role-tags">${tags}</div>` : '<div style="margin-bottom:14px"></div>'}
+        <div class="staff-card-role">${esc(person.role || 'No role specified')}</div>
+        <div class="card-chips">${startChip(person)}${refChip(person.id)}</div>
+        ${tags ? `<div class="role-tags">${tags}</div>` : ''}
         <div class="card-progress-track">
           <div class="card-progress-fill${done === total && total > 0 ? ' complete' : ''}" style="width:${pct}%"></div>
         </div>
@@ -944,12 +1078,12 @@ function renderDetail() {
 
   document.getElementById('detailMeta').innerHTML =
     `<span>${esc(person.role || '')}</span>` +
-    (person.startDate ? `<span>· Starting ${fmtDate(person.startDate)}</span>` : '') +
+    (person.startDate ? `<span>· Starting ${fmtDate(person.startDate)}</span> ${startChip(person)}` : '') +
     (tags ? `<span class="role-tags" style="margin:0">${tags}</span>` : '');
 
   updateProgress();
 
-  document.getElementById('detailBody').innerHTML = SECTIONS.map(sec => {
+  document.getElementById('detailBody').innerHTML = referencesCard(person) + SECTIONS.map(sec => {
     const applicable = sec.items.filter(i => isApplicable(i, person));
     const secDone    = applicable.filter(i => person.docs?.[i.id]?.checked).length;
     return `
@@ -990,6 +1124,241 @@ function renderDetail() {
         </div>
       </div>`;
   }).join('');
+}
+
+// ── References ──
+function activeRef(personId, slot) {
+  return state.refs.find(r => r.staffId === personId && String(r.slot) === String(slot) && r.status !== 'cancelled') || null;
+}
+
+function fmtShort(iso) {
+  return iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+}
+
+function referencesCard(person) {
+  return `
+    <div class="section-card" id="sec-references">
+      <div class="section-header" onclick="toggleSection('references')">
+        <div class="section-icon" style="background:#eff6ff">✉️</div>
+        <span class="section-title">Reference Requests</span>
+        <span class="section-count">${[1,2].filter(n => activeRef(person.id, n)?.status === 'approved').length} / 2 approved</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-items">
+        <p class="refs-intro">Send each referee a link to the online questionnaire. Anyone who hasn't replied is reminded every 3 days, up to 3 times, then marked overdue. Approving a reference ticks it off below.</p>
+        <div class="refs-grid">${[1,2].map(n => refSlotHtml(person, n)).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function refSlotHtml(person, slot) {
+  const r = activeRef(person.id, slot);
+  if (!r) {
+    return `
+      <div class="ref-slot">
+        <h4>Reference ${slot}</h4>
+        <div class="ref-form">
+          <input type="text"  id="rn${slot}" placeholder="Referee name" />
+          <input type="email" id="re${slot}" placeholder="Referee email" />
+          <input type="text"  id="ro${slot}" placeholder="Organisation (optional)" />
+        </div>
+        <div class="ref-actions"><button class="btn btn-primary" onclick="sendRefRequest(${slot})">Send request</button></div>
+      </div>`;
+  }
+  let chip, lines = [], actions = [];
+  if (r.status === 'requested') {
+    chip = r.overdueAt ? '<span class="chip chip-red">Overdue</span>' : '<span class="chip chip-amber">Waiting</span>';
+    lines.push(`Requested ${fmtShort(r.createdAt)}${r.lastEmailAt ? ` · last emailed ${fmtShort(r.lastEmailAt)}` : ''}`);
+    lines.push(r.overdueAt
+      ? 'No reply after 3 reminders. Consider phoning them.'
+      : `${r.reminderCount} of 3 reminders sent${r.nextChaseAt ? ` · next ${fmtShort(r.nextChaseAt)}` : ''}`);
+    actions = [
+      `<button class="btn btn-outline" onclick="refResend('${r.id}')">Send reminder now</button>`,
+      `<button class="btn btn-outline" onclick="refChangeEmail('${r.id}')">Change email</button>`,
+      `<button class="btn btn-outline" onclick="refCopyLink('${r.id}')">Copy link</button>`,
+      `<button class="btn btn-outline" onclick="refOffline('${r.id}')">Received another way</button>`,
+      `<button class="btn btn-danger-text" onclick="refCancel('${r.id}')">Cancel</button>`
+    ];
+  } else if (r.status === 'received') {
+    chip = '<span class="chip chip-blue">Needs approval</span>';
+    lines.push(`Received ${fmtShort(r.submittedAt)}${r.method === 'offline' ? ' outside the app' : ' online'}`);
+    actions = [
+      `<button class="btn btn-primary" onclick="openRef('${r.id}')">View and approve</button>`,
+      `<button class="btn btn-danger-text" onclick="refCancel('${r.id}')">Reject and ask someone else</button>`
+    ];
+  } else {
+    chip = '<span class="chip chip-green">Approved</span>';
+    lines.push(`Approved by ${esc(r.approvedBy)} on ${fmtShort(r.approvedAt)}`);
+    actions = [`<button class="btn btn-outline" onclick="openRef('${r.id}')">View</button>`];
+  }
+  return `
+    <div class="ref-slot">
+      <h4>Reference ${slot} ${chip}</h4>
+      <div class="ref-who">${esc(r.refereeName)}</div>
+      <div class="ref-sub">${esc(r.refereeEmail)}${r.refereeOrg ? ' · ' + esc(r.refereeOrg) : ''}</div>
+      ${lines.map(l => `<div class="ref-line">${l}</div>`).join('')}
+      ${r.status === 'requested' && r.emailError ? `<div class="ref-line err">Email not sent: ${esc(r.emailError)}. Use Copy link to send it yourself.</div>` : ''}
+      <div class="ref-actions">${actions.join('')}</div>
+    </div>`;
+}
+
+function upsertRef(r) {
+  const i = state.refs.findIndex(x => x.id === r.id);
+  if (i >= 0) state.refs[i] = { ...state.refs[i], ...r }; else state.refs.push(r);
+}
+
+async function refPost(body) {
+  const res = await fetch('/api/references', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Something went wrong');
+  return data;
+}
+
+async function sendRefRequest(slot) {
+  const person = getSelected();
+  const refereeName  = document.getElementById('rn' + slot).value.trim();
+  const refereeEmail = document.getElementById('re' + slot).value.trim();
+  const refereeOrg   = document.getElementById('ro' + slot).value.trim();
+  if (!refereeName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(refereeEmail)) { notify('Enter the referee name and a valid email', true); return; }
+  try {
+    const r = await refPost({ action: 'send', staffId: person.id, slot, refereeName, refereeEmail, refereeOrg });
+    upsertRef(r);
+    notify(r.emailError ? 'Request saved, but the email could not be sent' : 'Reference request sent to ' + refereeEmail, !!r.emailError);
+    renderDetail();
+  } catch (e) { notify(e.message, true); }
+}
+
+async function refResend(id, refereeEmail) {
+  try {
+    const r = await refPost({ action: 'resend', id, refereeEmail });
+    upsertRef(r); notify('Email sent to ' + r.refereeEmail); renderDetail();
+  } catch (e) { notify(e.message, true); }
+}
+
+function refChangeEmail(id) {
+  const r = state.refs.find(x => x.id === id);
+  const email = prompt('New email address for ' + r.refereeName + '. The request will be sent again.', r.refereeEmail);
+  if (email && email.trim()) refResend(id, email.trim());
+}
+
+async function refCopyLink(id) {
+  const r = state.refs.find(x => x.id === id);
+  try { await navigator.clipboard.writeText(r.link); notify('Link copied. Only send it to the referee.'); }
+  catch { prompt('Copy this link and send it to the referee only:', r.link); }
+}
+
+async function refOffline(id) {
+  const note = prompt('How was this reference received? (for example: by post, signed copy on file)');
+  if (note === null) return;
+  try { upsertRef(await refPost({ action: 'offline', id, note })); renderDetail(); notify('Marked as received. Approve it when checked.'); }
+  catch (e) { notify(e.message, true); }
+}
+
+async function refCancel(id) {
+  const r = state.refs.find(x => x.id === id);
+  const msg = r.status === 'received'
+    ? 'Reject this reference? It stays on record but you can then request one from someone else.'
+    : "Cancel this request? The referee's link will stop working.";
+  if (!confirm(msg)) return;
+  try {
+    await refPost({ action: 'cancel', id });
+    r.status = 'cancelled';
+    closeRef(); renderDetail(); notify('Request cancelled');
+  } catch (e) { notify(e.message, true); }
+}
+
+// ── Reference viewer ──
+async function openRef(id) {
+  const box = document.getElementById('refViewer');
+  box.innerHTML = '<div class="rv-body" style="padding:40px;text-align:center"><div class="spinner"></div></div>';
+  document.getElementById('refOverlay').classList.add('open');
+  try {
+    const res = await fetch('/api/references?id=' + encodeURIComponent(id));
+    if (!res.ok) throw new Error('Could not load the reference');
+    box.innerHTML = refViewHtml(await res.json());
+  } catch (e) { closeRef(); notify(e.message, true); }
+}
+
+function closeRef() {
+  document.getElementById('refOverlay').classList.remove('open');
+  document.body.classList.remove('printing');
+}
+
+function printRef() {
+  document.body.classList.add('printing');
+  window.print();
+  setTimeout(() => document.body.classList.remove('printing'), 500);
+}
+
+function refViewHtml(r) {
+  const a = r.response || {};
+  const flagIf = { reemploy: 'No', disciplined: 'Yes', investigated: 'Yes', suitable: 'No' };
+  const qa = (label, val, flag) => `<div class="rv-q"><div class="q">${esc(label)}</div><div class="a${!val ? ' blank' : flag ? ' flag' : ''}">${val ? esc(val) : 'Not answered'}</div></div>`;
+  let body;
+  if (r.method === 'offline') {
+    body = `<div class="rv-sec"><h5>Received outside the app</h5>${qa('Note', r.offlineNote)}</div>`;
+  } else {
+    body = REFERENCE_FORM.map(sec => `
+      <div class="rv-sec"><h5>${esc(sec.title)}</h5>
+        ${sec.fields.map(f => {
+          if (f.type === 'ratings') {
+            return `<table class="rv-ratings"><tr><th></th>${RATING_SCALE.map(x => `<th>${x}</th>`).join('')}</tr>
+              ${RATING_STATEMENTS.map((st, i) => `<tr><td>${esc(st)}</td>${RATING_SCALE.map(x => `<td>${a['rating_' + i] === x ? '<span class="rv-dot"></span>' : ''}</td>`).join('')}</tr>`).join('')}</table>`;
+          }
+          if (f.showIf && a[f.showIf[0]] !== f.showIf[1]) return '';
+          return qa(f.label, a[f.id], flagIf[f.id] && a[f.id] === flagIf[f.id]);
+        }).join('')}
+      </div>`).join('') + `
+      <div class="rv-sec"><h5>Declaration</h5>
+        ${qa(DECLARATION_TEXT, a.declaration ? 'Confirmed' : '')}
+        ${qa('Signed', a.signature)}
+        ${qa('Date', fmtDate(r.submittedAt))}
+      </div>`;
+  }
+  const approve = r.status === 'received' ? `
+    <div class="rv-approve no-print">
+      <strong style="font-size:14px">Approve this reference</strong>
+      <div style="font-size:12px;color:var(--grey-600);margin-top:2px">This certifies you have read and approved it. Reference ${r.slot} will be ticked off as received.</div>
+      <textarea id="approveNote" rows="2" placeholder="Note (optional), e.g. followed up by phone on..."></textarea>
+      <button class="btn btn-primary" onclick="approveRef('${r.id}')">Approve reference</button>
+      <button class="btn btn-danger-text" onclick="refCancel('${r.id}')">Reject and ask someone else</button>
+    </div>` : r.status === 'approved' ? `
+    <div class="rv-sec"><h5>School use only</h5>
+      ${qa('Approved by', r.approvedBy)}
+      ${qa('Date', fmtDate(r.approvedAt))}
+      ${r.approvedNote ? qa('Note', r.approvedNote) : ''}
+    </div>` : '';
+  return `
+    <div class="rv-head">
+      <h3>Reference ${r.slot} for ${esc(r.candidateName)}
+        <div class="rv-meta">From ${esc(r.refereeName)}${r.refereeOrg ? ', ' + esc(r.refereeOrg) : ''} (${esc(r.refereeEmail)}) · Position: ${esc(r.position || 'not stated')}</div>
+      </h3>
+      <button class="btn btn-outline no-print" onclick="printRef()">Print / PDF</button>
+      <button class="btn btn-secondary no-print" onclick="closeRef()">Close</button>
+    </div>
+    <div class="rv-body">
+      ${body}
+      ${approve}
+      <div class="rv-sec"><h5>History</h5>
+        <div class="rv-history">${(r.history || []).map(h => `<div>${new Date(h.at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} · ${esc(h.what)}${h.by ? ' · ' + esc(h.by) : ''}</div>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+async function approveRef(id) {
+  const note = (document.getElementById('approveNote') || {}).value || '';
+  try {
+    const r = await refPost({ action: 'approve', id, note });
+    upsertRef(r);
+    // Tick the matching checklist row
+    const person = state.staff.find(p => p.id === r.staffId);
+    if (person) {
+      if (!person.docs) person.docs = {};
+      person.docs['reference-' + r.slot] = { ...(person.docs['reference-' + r.slot] || {}), checked: true, date: new Date().toISOString().split('T')[0], checkedBy: r.approvedBy };
+      scheduleSave(person);
+    }
+    closeRef(); renderDetail(); notify('Reference approved');
+  } catch (e) { notify(e.message, true); }
 }
 
 // ── Actions ──
@@ -1176,6 +1545,7 @@ function fmtDate(iso) {
 }
 
 document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('refOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeRef(); });
 document.getElementById('inputName').addEventListener('keydown', e => { if (e.key === 'Enter') saveStaff(); });
 
 init();
