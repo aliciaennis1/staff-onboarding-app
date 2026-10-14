@@ -581,6 +581,7 @@
     .btn-danger-text:hover { background: #fef2f2; }
     .ref-form input { width: 100%; padding: 8px 10px; border: 1px solid var(--grey-300); border-radius: 7px; font-size: 13px; margin-bottom: 8px; background: #fff; }
     .ref-form input:focus { outline: none; border-color: var(--primary-light); }
+    .ref-form input.invalid { border-color: #dc2626; background: #fef2f2; }
 
     .modal-wide { width: 780px; max-height: 90vh; overflow-y: auto; padding: 0; }
     .rv-head { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--grey-200); padding: 18px 24px; display: flex; gap: 12px; align-items: flex-start; z-index: 1; }
@@ -1158,9 +1159,9 @@ function refSlotHtml(person, slot) {
       <div class="ref-slot">
         <h4>Reference ${slot}</h4>
         <div class="ref-form">
-          <input type="text"  id="rn${slot}" placeholder="Referee name" />
-          <input type="email" id="re${slot}" placeholder="Referee email" />
-          <input type="text"  id="ro${slot}" placeholder="Organisation (optional)" />
+          <input type="text"  id="rn${slot}" placeholder="Referee name" onkeydown="if(event.key==='Enter')sendRefRequest(${slot})" />
+          <input type="text"  id="re${slot}" inputmode="email" autocomplete="off" placeholder="Referee email" onkeydown="if(event.key==='Enter')sendRefRequest(${slot})" />
+          <input type="text"  id="ro${slot}" placeholder="Organisation (optional)" onkeydown="if(event.key==='Enter')sendRefRequest(${slot})" />
         </div>
         <div class="ref-actions"><button class="btn btn-primary" onclick="sendRefRequest(${slot})">Send request</button></div>
       </div>`;
@@ -1216,10 +1217,17 @@ async function refPost(body) {
 
 async function sendRefRequest(slot) {
   const person = getSelected();
-  const refereeName  = document.getElementById('rn' + slot).value.trim();
-  const refereeEmail = document.getElementById('re' + slot).value.trim();
-  const refereeOrg   = document.getElementById('ro' + slot).value.trim();
-  if (!refereeName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(refereeEmail)) { notify('Enter the referee name and a valid email', true); return; }
+  const nameEl = document.getElementById('rn' + slot), emailEl = document.getElementById('re' + slot);
+  [nameEl, emailEl].forEach(el => el.classList.remove('invalid'));
+  // Accept addresses pasted from Outlook, e.g. "Jane Head <jane@school.org>"
+  const rawEmail = emailEl.value.trim();
+  const found = rawEmail.match(/[^\s<>"'(),;:]+@[^\s<>"'(),;:]+\.[^\s<>"'(),;:]+/);
+  const refereeEmail = found ? found[0] : rawEmail;
+  let refereeName = nameEl.value.trim();
+  if (!refereeName && found) refereeName = rawEmail.replace(found[0], '').replace(/[<>"()]/g, '').trim();
+  const refereeOrg = document.getElementById('ro' + slot).value.trim();
+  if (!refereeName) { nameEl.classList.add('invalid'); nameEl.focus(); notify(`Reference ${slot}: enter the referee's name`, true); return; }
+  if (!found) { emailEl.classList.add('invalid'); emailEl.focus(); notify(`Reference ${slot}: "${rawEmail || 'blank'}" isn't a valid email address`, true); return; }
   try {
     const r = await refPost({ action: 'send', staffId: person.id, slot, refereeName, refereeEmail, refereeOrg });
     upsertRef(r);
