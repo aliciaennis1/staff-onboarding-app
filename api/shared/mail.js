@@ -13,7 +13,8 @@ function fmtDate(d) {
 function senderEmail() { return process.env.SENDER_EMAIL || ADMIN_EMAIL; }
 function senderName()  { return process.env.SENDER_NAME || "Alicia Ennis"; }
 function notifyEmail() { return process.env.NOTIFY_EMAIL || ADMIN_EMAIL; }
-function mailConfigured() { return !!process.env.SENDGRID_API_KEY; }
+function useGraph() { return !!(process.env.MAIL_TENANT_ID && process.env.MAIL_CLIENT_ID && process.env.MAIL_CLIENT_SECRET); }
+function mailConfigured() { return useGraph() || !!process.env.SENDGRID_API_KEY; }
 
 // The public address of the app, used in email links
 function appUrl(req) {
@@ -22,7 +23,48 @@ function appUrl(req) {
   return host ? "https://" + host : "";
 }
 
+// Microsoft 365 (Graph) is used when the MAIL_* settings are present, otherwise SendGrid.
+let graphToken = null;
+async function getGraphToken() {
+  if (graphToken && graphToken.expires > Date.now() + 60000) return graphToken.value;
+  const res = await fetch(`https://login.microsoftonline.com/${process.env.MAIL_TENANT_ID}/oauth2/v2.0/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: process.env.MAIL_CLIENT_ID,
+      client_secret: process.env.MAIL_CLIENT_SECRET,
+      scope: "https://graph.microsoft.com/.default",
+      grant_type: "client_credentials"
+    })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`Microsoft 365 sign-in failed: ${data.error_description || res.status}`.slice(0, 200));
+  graphToken = { value: data.access_token, expires: Date.now() + (data.expires_in || 3600) * 1000 };
+  return graphToken.value;
+}
+
+async function sendViaGraph(to, subject, html) {
+  const token = await getGraphToken();
+  const res = await fetch(`https://graph.microsoft.com/v1.0/users/${encodeURIComponent(senderEmail())}/sendMail`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: {
+        subject,
+        body: { contentType: "HTML", content: html },
+        toRecipients: [{ emailAddress: { address: to } }]
+      },
+      saveToSentItems: true
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(`Microsoft 365 ${res.status}: ${err.error?.message || "send failed"}`.slice(0, 200));
+  }
+}
+
 async function sendMail(to, subject, html) {
+  if (useGraph()) return sendViaGraph(to, subject, html);
   const apiKey = process.env.SENDGRID_API_KEY;
   if (!apiKey) throw new Error("Email is not set up (SENDGRID_API_KEY missing)");
   const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
