@@ -599,7 +599,7 @@
     .rv-ratings td, .rv-ratings th { border-top: 1px solid var(--grey-100); padding: 5px 4px; text-align: center; }
     .rv-ratings th { color: var(--grey-600); font-weight: 600; }
     .rv-ratings td:first-child, .rv-ratings th:first-child { text-align: left; }
-    .rv-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
+    .rv-dot { color: var(--primary); font-size: 22px; line-height: 0.8; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .rv-approve { margin-top: 22px; padding: 16px; border-radius: 10px; background: var(--primary-bg); }
     .rv-approve textarea { width: 100%; margin: 8px 0 10px; padding: 8px 10px; border: 1px solid var(--grey-300); border-radius: 7px; font: inherit; font-size: 13px; }
     .rv-history { font-size: 12px; color: var(--grey-600); }
@@ -618,6 +618,8 @@
       body.printing .modal-wide { width: auto; max-height: none; overflow: visible; box-shadow: none; }
       body.printing .rv-head { position: static; }
       body.printing .no-print { display: none !important; }
+      body.printing #refViewer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body.printing .rv-ratings td, body.printing .rv-ratings th { border-top: 1px solid #ccc; }
     }
   </style>
 </head>
@@ -1311,7 +1313,7 @@ function refViewHtml(r) {
         ${sec.fields.map(f => {
           if (f.type === 'ratings') {
             return `<table class="rv-ratings"><tr><th></th>${RATING_SCALE.map(x => `<th>${x}</th>`).join('')}</tr>
-              ${RATING_STATEMENTS.map((st, i) => `<tr><td>${esc(st)}</td>${RATING_SCALE.map(x => `<td>${a['rating_' + i] === x ? '<span class="rv-dot"></span>' : ''}</td>`).join('')}</tr>`).join('')}</table>`;
+              ${RATING_STATEMENTS.map((st, i) => `<tr><td>${esc(st)}</td>${RATING_SCALE.map(x => `<td>${a['rating_' + i] === x ? '<span class="rv-dot" aria-label="Selected">●</span>' : ''}</td>`).join('')}</tr>`).join('')}</table>`;
           }
           if (f.showIf && a[f.showIf[0]] !== f.showIf[1]) return '';
           return qa(f.label, a[f.id], flagIf[f.id] && a[f.id] === flagIf[f.id]);
