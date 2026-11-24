@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pre-Employment Forms</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f1f5f9;color:#1e293b;-webkit-font-smoothing:antialiased;min-height:100vh}
+.header{background:linear-gradient(135deg,#3a4e1c,#4F6228);color:#fff;padding:16px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 16px rgba(0,0,0,.18)}
+.header img{height:44px;background:#fff;border-radius:8px;padding:3px}
+.header-text h1{font-size:17px;font-weight:700}
+.header-text p{font-size:12px;opacity:.75;margin-top:2px}
+
+.container{max-width:780px;margin:0 auto;padding:28px 16px 60px}
+
+/* State screens */
+.screen{display:flex;align-items:center;justify-content:center;min-height:60vh}
+.screen-card{background:#fff;border-radius:20px;padding:48px 40px;max-width:460px;width:100%;text-align:center;box-shadow:0 4px 32px rgba(0,0,0,.10)}
+.screen-card h2{color:#4F6228;font-size:20px;font-weight:800;margin-bottom:10px}
+.screen-card p{color:#64748b;font-size:14px;line-height:1.6}
+.spinner{width:42px;height:42px;border:4px solid #e2e8f0;border-top-color:#4F6228;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Welcome banner */
+.welcome-banner{background:#fff;border-radius:16px;padding:20px 24px;margin-bottom:24px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:16px}
+.welcome-icon{width:48px;height:48px;background:#f0f9eb;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#4F6228;font-size:20px;flex-shrink:0}
+.welcome-text h2{font-size:16px;font-weight:700;color:#0f172a}
+.welcome-text p{font-size:13px;color:#64748b;margin-top:3px}
+
+/* Progress bar */
+.progress-bar{background:#fff;border-radius:14px;padding:16px 20px;margin-bottom:24px;border:1px solid #e2e8f0;display:flex;gap:8px;align-items:center}
+.prog-step{flex:1;text-align:center}
+.prog-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin:0 auto 6px;transition:all .2s}
+.prog-dot.done{background:#4F6228;color:#fff}
+.prog-dot.active{background:#4F6228;color:#fff;box-shadow:0 0 0 4px #d4ebb0}
+.prog-dot.todo{background:#f1f5f9;color:#94a3b8;border:2px solid #e2e8f0}
+.prog-label{font-size:11px;font-weight:600;color:#64748b;line-height:1.3}
+.prog-label.active{color:#4F6228}
+.prog-connector{width:24px;height:2px;background:#e2e8f0;flex-shrink:0;margin-top:-14px}
+.prog-connector.done{background:#4F6228}
+
+/* Form card */
+.form-card{background:#fff;border-radius:16px;padding:28px 28px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:20px}
+.form-card-title{font-size:16px;font-weight:800;color:#0f172a;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.form-card-title i{color:#4F6228}
+.form-card-subtitle{font-size:13px;color:#64748b;margin-bottom:24px}
+.form-section-heading{font-size:12px;font-weight:800;color:#4F6228;text-transform:uppercase;letter-spacing:.7px;margin:24px 0 14px;padding-bottom:6px;border-bottom:2px solid #f0f9eb}
+
+/* Fields */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;color:#0f172a;background:#fff;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:#4F6228}
+.field textarea{resize:vertical;min-height:80px}
+.field-row{display:grid;gap:14px}
+.field-row.two{grid-template-columns:1fr 1fr}
+.field-row.three{grid-template-columns:1fr 1fr 1fr}
+.required{color:#ef4444}
+.field-hint{font-size:11px;color:#94a3b8;margin-top:4px;font-style:italic}
+
+/* Yes/No questions */
+.yn-question{background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:10px;border:1px solid #e8edf2}
+.yn-q-text{font-size:13px;color:#0f172a;font-weight:500;margin-bottom:10px;line-height:1.5}
+.yn-q-num{display:inline-block;background:#4F6228;color:#fff;border-radius:5px;font-size:10px;font-weight:800;padding:2px 6px;margin-right:6px;vertical-align:middle}
+.yn-options{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.yn-radio{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:600}
+.yn-radio input[type=radio]{accent-color:#4F6228;width:16px;height:16px}
+.yn-details{margin-top:10px}
+.yn-details textarea{width:100%;padding:8px 11px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;min-height:60px}
+.yn-details textarea:focus{outline:none;border-color:#4F6228}
+
+/* Confidential notice */
+.notice{background:#fef9ef;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#92400e;margin-bottom:20px;display:flex;align-items:flex-start;gap:8px}
+.notice i{margin-top:1px;flex-shrink:0}
+
+/* Signature */
+.sig-field{border:2px dashed #e2e8f0;border-radius:10px;padding:16px;margin-top:8px}
+.sig-field input{border:none;border-bottom:2px solid #0f172a;border-radius:0;padding:6px 4px;font-size:15px;font-style:italic}
+.sig-field input:focus{outline:none;border-bottom-color:#4F6228}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.btn{padding:11px 22px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-save{background:#f0f9eb;color:#4F6228;border:1.5px solid #c8e6a0}
+.btn-save:hover{background:#e0f2d0}
+.btn-primary{background:linear-gradient(135deg,#4F6228,#5d7430);color:#fff;box-shadow:0 2px 8px rgba(79,98,40,.25)}
+.btn-primary:hover{background:linear-gradient(135deg,#3d4e1f,#4F6228)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0}
+.btn-secondary:hover{background:#e2e8f0}
+
+/* Status badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-done{background:#d1fae5;color:#065f46}
+.badge-progress{background:#fef3c7;color:#92400e}
+.badge-todo{background:#f1f5f9;color:#64748b}
+
+/* Submitted screen */
+.check-circle{width:64px;height:64px;background:#d1fae5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:#065f46;margin:0 auto 16px}
+
+@media(max-width:600px){
+  .field-row.two,.field-row.three{grid-template-columns:1fr}
+  .form-card{padding:20px 16px}
+  .btn-row{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="logo.png" alt="Adventure Wellbeing School">
+  <div class="header-text">
+    <h1>Adventure Wellbeing School</h1>
+    <p>Pre-Employment Forms</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Loading -->
+  <div id="screenLoading" class="screen">
+    <div class="screen-card">
+      <div class="spinner"></div>
+      <p style="color:#64748b">Loading your forms…</p>
+    </div>
+  </div>
+
+  <!-- Invalid token -->
+  <div id="screenInvalid" class="screen" style="display:none">
+    <div class="screen-card">
+      <i class="fa-solid fa-link-slash" style="font-size:36px;color:#ef4444;margin-bottom:16px;display:block"></i>
+      <h2 style="color:#ef4444">Invalid Link</h2>
+      <p>This link is invalid or has expired. Please contact Adventure Wellbeing School for a new link.</p>
+    </div>
+  </div>
+
+  <!-- All submitted -->
+  <div id="screenDone" class="screen" style="display:none">
+    <div class="screen-card">
+      <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+      <h2>All Forms Submitted</h2>
+      <p style="margin-top:8px">Thank you. All three forms have been completed and submitted to Adventure Wellbeing School. You will be contacted regarding next steps.</p>
+    </div>
+  </div>
+
+  <!-- Main app -->
+  <div id="mainApp" style="display:none">
+
+    <div class="welcome-banner">
+      <div class="welcome-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+      <div class="welcome-text">
+        <h2 id="welcomeName">Welcome</h2>
+        <p>Please complete all three forms below. You can save your progress at any time and return to this link to continue.</p>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- FORM 1: Employee Details -->
+    <div id="formEmployeeDetails" class="form-section" style="display:none">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fa-solid fa-user-circle"></i> Employee Details &amp; Emergency Contacts</div>
+        <div class="form-card-subtitle">Adventure Wellbeing School: Staff Medical and Emergency Contact Information</div>
+
+        <div class="notice"><i class="fa-solid fa-lock"></i>This information will be kept confidential. It will be taken on any trips that you participate in within work time.</div>
+
+        <div class="form-section-heading">Personal Details</div>
+        <div class="field"><label>Full Name <span class="required">*</span></label><input type="text" id="ed_name"></div>
+        <div class="field-row two">
+          <div class="field"><label>Date of Birth <span class="required">*</span></label><input type="date" id="ed_dob"></div>
+          <div class="field"><label>NHS Number</label><input type="text" id="ed_nhs" placeholder="e.g. 123 456 7890"></div>
+        </div>
+        <div class="field"><label>Hospital Patient Number <span style="font-weight:400;font-size:11px;color:#94a3b8">(if known)</span></label>
+          <input type="text" id="ed_hospital_num">
+          <div class="field-hint">This information is only for emergency use (ambulance, hospital).</div>
+        </div>
+        <div class="field"><label>Your Address <span class="required">*</span></label><textarea id="ed_address" rows="2"></textarea></div>
+        <div class="field"><label>Postcode <span class="required">*</span></label><input type="text" id="ed_postcode" style="max-width:160px"></div>
+
+        <div class="form-section-heading">Medical Information</div>
+        <div class="field"><label>Medical Information (Allergies, Illnesses)</label><textarea id="ed_medical" placeholder="Please list any allergies, ongoing medical conditions, or relevant illnesses…" rows="3"></textarea></div>
+        <div class="field"><label>Medication you are currently taking</label><textarea id="ed_medication" placeholder="Please list any medications…" rows="2"></textarea></div>
+        <div class="field"><label>Where is your medication kept?</label>
+          <input type="text" id="ed_medication_location" placeholder="e.g. On my person / locked cupboard">
+          <div class="field-hint">On your person with authorisation by the headteacher, OR in locked cupboard.</div>
+        </div>
+
+        <div class="form-section-heading">Emergency Contact 1</div>
+        <div class="notice" style="margin-bottom:14px"><i class="fa-solid fa-circle-info"></i>All emergency contacts must be over 18 years of age.</div>
+        <div class="field"><label>Full Name <span class="required">*</span></label><input type="text" id="ec1_name"></div>
+        <div class="field"><label>Address</label><textarea id="ec1_address" rows="2"></textarea></div>
+        <div class="field"><label>Postcode</label><input type="text" id="ec1_postcode" style="max-width:160px"></div>
+        <div class="field-row two">
+          <div class="field"><label>Home Number</label><input type="tel" id="ec1_home"></div>
+          <div class="field"><label>Mobile Number <span class="required">*</span></label><input type="tel" id="ec1_mobile"></div>
+        </div>
+
+        <div class="form-section-heading">Emergency Contact 2</div>
+        <div class="field"><label>Full Name</label><input type="text" id="ec2_name"></div>
+        <div class="field"><label>Address</label><textarea id="ec2_address" rows="2"></textarea></div>
+        <div class="field"><label>Postcode</label><input type="text" id="ec2_postcode" style="max-width:160px"></div>
+        <div class="field-row two">
+          <div class="field"><label>Home Number</label><input type="tel" id="ec2_home"></div>
+          <div class="field"><label>Mobile Number</label><input type="tel" id="ec2_mobile"></div>
+        </div>
+
+        <div class="form-section-heading">Additional Information</div>
+        <div class="field"><label>Any further information</label>
+          <textarea id="ed_further" placeholder="e.g. your car registration, children, pets, or anything that may be useful in an emergency…" rows="3"></textarea>
+        </div>
+
+        <div class="form-section-heading">Declaration</div>
+        <div class="notice"><i class="fa-solid fa-pen-to-square"></i>By signing below you give permission for a colleague and emergency services to locate your medication and assist you with medical help.</div>
+        <div class="sig-field">
+          <div class="field"><label>Print Full Name <span class="required">*</span></label><input type="text" id="ed_print_name"></div>
+          <div class="field" style="margin-top:12px"><label>Signature (type your full name) <span class="required">*</span></label><input type="text" id="ed_signature" placeholder="Type your full name as signature" style="font-style:italic"></div>
+          <div class="field" style="margin-top:12px"><label>Date</label><input type="date" id="ed_sig_date"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-save" onclick="saveForm('employee_details', false)"><i class="fa-solid fa-floppy-disk"></i> Save Progress</button>
+          <button class="btn btn-primary" onclick="saveForm('employee_details', true)"><i class="fa-solid fa-paper-plane"></i> Submit &amp; Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM 2: Health Questionnaire -->
+    <div id="formHealthQuestionnaire" class="form-section" style="display:none">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fa-solid fa-heart-pulse"></i> Health Questionnaire</div>
+        <div class="form-card-subtitle">Q57: Teachers and Support Staff (Strictly Confidential)</div>
+
+        <div class="notice"><i class="fa-solid fa-lock"></i>The information you supply is strictly confidential to clinical staff. Only an opinion on your medical fitness, without clinical details, will be given to your employer. If you have a disability, long-term condition or mental health issue which has a bearing on your occupational health, you are required to disclose it here.</div>
+
+        <div class="form-section-heading">Personal Details</div>
+        <div class="field-row two">
+          <div class="field"><label>Surname <span class="required">*</span></label><input type="text" id="hq_surname"></div>
+          <div class="field"><label>Forenames <span class="required">*</span></label><input type="text" id="hq_forenames"></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Title</label>
+            <select id="hq_title"><option value="">Select</option><option>Mr</option><option>Mrs</option><option>Miss</option><option>Ms</option><option>Dr</option></select>
+          </div>
+          <div class="field"><label>Date of Birth <span class="required">*</span></label><input type="date" id="hq_dob"></div>
+        </div>
+        <div class="field"><label>National Insurance Number</label><input type="text" id="hq_ni" placeholder="e.g. AB 12 34 56 C"></div>
+        <div class="field"><label>Address <span class="required">*</span></label><textarea id="hq_address" rows="2"></textarea></div>
+        <div class="field-row two">
+          <div class="field"><label>Home Email</label><input type="email" id="hq_home_email"></div>
+          <div class="field"><label>Work Email</label><input type="email" id="hq_work_email"></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Home Telephone</label><input type="tel" id="hq_home_tel"></div>
+          <div class="field"><label>Mobile Number</label><input type="tel" id="hq_mobile"></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Department</label><input type="text" id="hq_department"></div>
+          <div class="field"><label>Site</label><input type="text" id="hq_site"></div>
+        </div>
+        <div class="field"><label>Post Applied For</label><input type="text" id="hq_post"></div>
+        <div class="field"><label>Age Range to be Taught</label><input type="text" id="hq_age_range" placeholder="e.g. 11 to 16"></div>
+        <div class="field"><label>Name &amp; Address of Last Teaching Post <span style="font-weight:400;font-size:11px;color:#94a3b8">(or teacher training college if newly qualified)</span></label><textarea id="hq_last_post" rows="2"></textarea></div>
+
+        <div class="form-section-heading">Medical History</div>
+        <p style="font-size:12px;color:#64748b;margin-bottom:16px;line-height:1.6">Please answer all questions. If <strong>Yes</strong>, give details including dates, treatment received, whether there are ongoing symptoms, and whether activities at home or work are affected. Include any time off work in the last 2 years due to these issues.</p>
+
+        <div id="ynQuestions"></div>
+
+        <div class="form-section-heading">Declaration &amp; Consent</div>
+        <div class="notice" style="flex-direction:column;gap:8px">
+          <div><i class="fa-solid fa-check-circle" style="color:#4F6228"></i> I confirm that all answers given above are true to the best of my knowledge and I have not knowingly withheld any medical information.</div>
+          <div><i class="fa-solid fa-check-circle" style="color:#4F6228"></i> I consent to undergo health assessment/examination by a Nurse or Doctor for employment purposes if necessary.</div>
+          <div><i class="fa-solid fa-check-circle" style="color:#4F6228"></i> I agree to a report (without clinical details) being sent to my employer regarding my fitness for work.</div>
+          <div><i class="fa-solid fa-check-circle" style="color:#4F6228"></i> I understand that giving false information or failing to disclose significant information could result in dismissal.</div>
+        </div>
+        <div class="sig-field" style="margin-top:16px">
+          <div class="field"><label>Print Name <span class="required">*</span></label><input type="text" id="hq_print_name"></div>
+          <div class="field" style="margin-top:12px"><label>Signature (type your full name) <span class="required">*</span></label><input type="text" id="hq_signature" placeholder="Type your full name as signature" style="font-style:italic"></div>
+          <div class="field" style="margin-top:12px"><label>Date</label><input type="date" id="hq_sig_date"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="showForm('employee_details')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="btn btn-save" onclick="saveForm('health_questionnaire', false)"><i class="fa-solid fa-floppy-disk"></i> Save Progress</button>
+          <button class="btn btn-primary" onclick="saveForm('health_questionnaire', true)"><i class="fa-solid fa-paper-plane"></i> Submit &amp; Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM 3: Bank Details -->
+    <div id="formBankDetails" class="form-section" style="display:none">
+      <div class="form-card">
+        <div class="form-card-title"><i class="fa-solid fa-building-columns"></i> Bank Details</div>
+        <div class="form-card-subtitle">Payment Details: Bank/Building Society information for pay</div>
+
+        <div class="notice"><i class="fa-solid fa-circle-info"></i>Wages are paid into your account on the 28th of each month. If the 28th falls on a weekend, wages will be paid on the Friday before. Wages are processed on the 27th, and any absences after that date will be taken from the next month's pay.</div>
+
+        <div class="form-section-heading">Account Holder Details</div>
+        <div class="field"><label>Name on Account <span class="required">*</span></label><input type="text" id="bd_account_name"></div>
+        <div class="field"><label>Address Registered to Account <span class="required">*</span></label><textarea id="bd_address" rows="2"></textarea></div>
+        <div class="field"><label>Postcode <span class="required">*</span></label><input type="text" id="bd_postcode" style="max-width:160px"></div>
+
+        <div class="form-section-heading">Bank / Building Society</div>
+        <div class="field"><label>Bank / Building Society Name <span class="required">*</span></label><input type="text" id="bd_bank_name"></div>
+        <div class="field-row two">
+          <div class="field"><label>Account Number <span class="required">*</span></label><input type="text" id="bd_account_no" maxlength="8" placeholder="8 digits"></div>
+          <div class="field"><label>Sort Code <span class="required">*</span></label><input type="text" id="bd_sort_code" placeholder="00-00-00" maxlength="8"></div>
+        </div>
+
+        <div class="form-section-heading">Authorisation</div>
+        <div class="notice"><i class="fa-solid fa-triangle-exclamation"></i>Please ensure that the details you have given are correct, or your payment could be delayed.</div>
+        <div class="sig-field">
+          <div class="field"><label>Print Full Name <span class="required">*</span></label><input type="text" id="bd_print_name"></div>
+          <div class="field" style="margin-top:12px"><label>Signature (type your full name) <span class="required">*</span></label><input type="text" id="bd_signature" placeholder="Type your full name as signature" style="font-style:italic"></div>
+          <div class="field" style="margin-top:12px"><label>Date</label><input type="date" id="bd_sig_date"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="showForm('health_questionnaire')"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="btn btn-save" onclick="saveForm('bank_details', false)"><i class="fa-solid fa-floppy-disk"></i> Save Progress</button>
+          <button class="btn btn-primary" id="finalSubmitBtn" onclick="saveForm('bank_details', true)"><i class="fa-solid fa-check-circle"></i> Submit All Forms</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mainApp -->
+</div>
+
+<div id="toastEl" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;min-width:220px;text-align:center"></div>
+
+<script>
+const YN_QUESTIONS = [
+  'Have you ever had any illness, medical problem or disability that may currently affect your ability to work safely as a teacher?',
+  'Have you ever been medically retired from any job, or left any job because of ill health?',
+  'Have you changed your patterns or methods of work or had any modifications/adjustments to your work for medical reasons?',
+  'Heart disease, rheumatic fever or high blood pressure?',
+  'Any lung disease including bronchitis, emphysema, asthma or TB?',
+  'In the last 12 months had a cough lasting more than 3 weeks?',
+  'Diabetes?',
+  'Hepatitis or jaundice?',
+  'Kidney or urinary complaint or blood in the urine?',
+  'Recurring headaches, fits, fainting, blackouts, dizziness, loss of balance?',
+  'Have you ever suffered from any mental illness, psychological or psychiatric problem, including depression, anxiety, nervous debility, nervous breakdown, schizophrenia or eating disorder (anorexia or bulimia)?',
+  'Treatment for drug or drink dependency?',
+  'Dermatitis, eczema, or other skin disorder?',
+  'Are you allergic to anything?',
+  'Any hearing difficulties?',
+  'Any other ear conditions?',
+  'Any eye trouble, e.g. any difficulty in reading print of standard size or in using DSE?',
+  'Colour blindness?',
+  'Do you wear glasses or contact lenses?',
+  'Any serious accidents or injuries in the past?',
+  'Any back pain or neck pain, arthritis, other joint pain, or stiffness which affects moving around?',
+  'Any other illness or disease?',
+  'Any operations or hospital admissions?',
+  'Have you consulted a doctor within the last two years?',
+  'Are you taking any medications?',
+  'Have you any medical complaints at the moment?',
+  'Have you any medical conditions which you believe to have been caused or made worse by work?',
+  'Do you need, or would it assist you to have any special provision made to enable you to fulfil your training and/or subsequent employment?'
+];
+
+const FORMS = ['employee_details', 'health_questionnaire', 'bank_details'];
+const FORM_LABELS = { employee_details: 'Employee Details', health_questionnaire: 'Health Questionnaire', bank_details: 'Bank Details' };
+const FORM_EL_IDS = { employee_details: 'formEmployeeDetails', health_questionnaire: 'formHealthQuestionnaire', bank_details: 'formBankDetails' };
+
+let token = '';
+let responses = {}; // { form: { data, submitted } }
+let currentForm = 'employee_details';
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  buildYnQuestions();
+  const params = new URLSearchParams(window.location.search);
+  token = params.get('token') || '';
+  if (!token) { show('invalid'); return; }
+  try {
+    const res = await fetch(`/api/candidateForm?token=${encodeURIComponent(token)}`);
+    if (!res.ok) { show('invalid'); return; }
+    const d = await res.json();
+    document.getElementById('welcomeName').textContent = `Welcome, ${d.name}`;
+    responses = d.forms || {};
+    populateAll();
+    const allDone = FORMS.every(f => responses[f]?.submitted);
+    if (allDone) { show('done'); return; }
+    show('app');
+    // Start on first incomplete form
+    const firstIncomplete = FORMS.find(f => !responses[f]?.submitted) || 'employee_details';
+    showForm(firstIncomplete);
+    renderProgress();
+  } catch (e) { show('invalid'); }
+});
+
+function show(screen) {
+  document.getElementById('screenLoading').style.display = 'none';
+  document.getElementById('screenInvalid').style.display = 'none';
+  document.getElementById('screenDone').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  if (screen === 'invalid') { document.getElementById('screenInvalid').style.display = ''; }
+  else if (screen === 'done') { document.getElementById('screenDone').style.display = ''; }
+  else if (screen === 'app') { document.getElementById('mainApp').style.display = ''; }
+}
+
+function showForm(form) {
+  currentForm = form;
+  lockIfSubmitted(form);
+  FORMS.forEach(f => {
+    document.getElementById(FORM_EL_IDS[f]).style.display = f === form ? '' : 'none';
+  });
+  renderProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// A submitted form can be looked at but not changed
+function lockIfSubmitted(form) {
+  const el = document.getElementById(FORM_EL_IDS[form]);
+  const done = !!responses[form]?.submitted;
+  el.querySelectorAll('input, textarea, select').forEach(i => { i.disabled = done; });
+  el.querySelectorAll('.btn-save, .btn-primary').forEach(b => { b.style.display = done ? 'none' : ''; });
+  let note = el.querySelector('.submitted-note');
+  if (done && !note) {
+    note = document.createElement('div');
+    note.className = 'notice submitted-note';
+    note.innerHTML = '<i class="fa-solid fa-check-circle"></i>You have already submitted this form. If something needs changing, please contact the school.';
+    el.querySelector('.form-card-subtitle').after(note);
+  }
+  if (note) note.style.display = done ? '' : 'none';
+}
+
+// ── Progress bar ─────────────────────────────────────────────────────────────
+function renderProgress() {
+  const bar = document.getElementById('progressBar');
+  const parts = [];
+  FORMS.forEach((f, i) => {
+    const done = responses[f]?.submitted;
+    const active = f === currentForm;
+    const cls = done ? 'done' : active ? 'active' : 'todo';
+    const icon = done ? '<i class="fa-solid fa-check"></i>' : (i + 1);
+    parts.push(`<div class="prog-step" style="cursor:pointer" onclick="showForm('${f}')">
+      <div class="prog-dot ${cls}">${icon}</div>
+      <div class="prog-label ${active ? 'active' : ''}">${FORM_LABELS[f]}</div>
+    </div>`);
+    if (i < FORMS.length - 1) {
+      parts.push(`<div class="prog-connector ${done ? 'done' : ''}"></div>`);
+    }
+  });
+  bar.innerHTML = parts.join('');
+}
+
+// ── Build Y/N questions ───────────────────────────────────────────────────────
+function buildYnQuestions() {
+  const container = document.getElementById('ynQuestions');
+  container.innerHTML = YN_QUESTIONS.map((q, i) => `
+    <div class="yn-question" id="ynq_${i}">
+      <div class="yn-q-text"><span class="yn-q-num">${i+1}</span>${q}</div>
+      <div class="yn-options">
+        <label class="yn-radio"><input type="radio" name="yn_${i}" value="yes" onchange="toggleDetails(${i})"> Yes</label>
+        <label class="yn-radio"><input type="radio" name="yn_${i}" value="no" onchange="toggleDetails(${i})" checked> No</label>
+      </div>
+      <div class="yn-details" id="yn_det_${i}" style="display:none">
+        <textarea id="yn_detail_${i}" placeholder="Please give details, dates, treatment, ongoing symptoms, and any time off work in the last 2 years…"></textarea>
+      </div>
+    </div>`).join('');
+}
+
+function toggleDetails(i) {
+  const val = document.querySelector(`input[name="yn_${i}"]:checked`)?.value;
+  document.getElementById(`yn_det_${i}`).style.display = val === 'yes' ? '' : 'none';
+}
+
+// ── Populate saved data ───────────────────────────────────────────────────────
+function populateAll() {
+  FORMS.forEach(f => {
+    if (responses[f]?.data) populate(f, responses[f].data);
+  });
+}
+
+function populate(form, data) {
+  Object.entries(data).forEach(([key, val]) => {
+    if (form === 'health_questionnaire' && key.startsWith('yn_')) {
+      const parts = key.split('_');
+      if (parts[1] === 'ans') {
+        const i = parseInt(parts[2]);
+        const radio = document.querySelector(`input[name="yn_${i}"][value="${val}"]`);
+        if (radio) { radio.checked = true; toggleDetails(i); }
+      } else if (parts[1] === 'det') {
+        const i = parseInt(parts[2]);
+        const el = document.getElementById(`yn_detail_${i}`);
+        if (el) el.value = val || '';
+      }
+      return;
+    }
+    const el = document.getElementById(key);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.value = val;
+    else el.value = val || '';
+  });
+}
+
+// ── Collect form data ─────────────────────────────────────────────────────────
+function collect(form) {
+  const data = {};
+  if (form === 'employee_details') {
+    ['ed_name','ed_dob','ed_nhs','ed_hospital_num','ed_address','ed_postcode',
+     'ed_medical','ed_medication','ed_medication_location',
+     'ec1_name','ec1_address','ec1_postcode','ec1_home','ec1_mobile',
+     'ec2_name','ec2_address','ec2_postcode','ec2_home','ec2_mobile',
+     'ed_further','ed_print_name','ed_signature','ed_sig_date'].forEach(id => {
+      data[id] = document.getElementById(id)?.value || '';
+    });
+  } else if (form === 'health_questionnaire') {
+    ['hq_surname','hq_forenames','hq_title','hq_dob','hq_ni','hq_address',
+     'hq_home_email','hq_work_email','hq_home_tel','hq_mobile',
+     'hq_department','hq_site','hq_post','hq_age_range','hq_last_post',
+     'hq_print_name','hq_signature','hq_sig_date'].forEach(id => {
+      data[id] = document.getElementById(id)?.value || '';
+    });
+    YN_QUESTIONS.forEach((_, i) => {
+      data[`yn_ans_${i}`] = document.querySelector(`input[name="yn_${i}"]:checked`)?.value || 'no';
+      data[`yn_det_${i}`] = document.getElementById(`yn_detail_${i}`)?.value || '';
+    });
+  } else if (form === 'bank_details') {
+    ['bd_account_name','bd_address','bd_postcode','bd_bank_name',
+     'bd_account_no','bd_sort_code','bd_print_name','bd_signature','bd_sig_date'].forEach(id => {
+      data[id] = document.getElementById(id)?.value || '';
+    });
+  }
+  return data;
+}
+
+// ── Validate required fields ──────────────────────────────────────────────────
+function validate(form) {
+  const required = {
+    employee_details:     ['ed_name','ed_dob','ed_address','ed_postcode','ec1_name','ec1_mobile','ed_print_name','ed_signature'],
+    health_questionnaire: ['hq_surname','hq_forenames','hq_dob','hq_address','hq_print_name','hq_signature'],
+    bank_details:         ['bd_account_name','bd_address','bd_postcode','bd_bank_name','bd_account_no','bd_sort_code','bd_print_name','bd_signature']
+  };
+  for (const id of (required[form] || [])) {
+    const el = document.getElementById(id);
+    if (!el?.value?.trim()) {
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el?.focus();
+      toast('Please fill in all required fields', true);
+      return false;
+    }
+  }
+  return true;
+}
+
+// ── Save / Submit ─────────────────────────────────────────────────────────────
+async function saveForm(form, submit) {
+  if (submit && !validate(form)) return;
+  const data = collect(form);
+  const btnId = form === 'bank_details' ? 'finalSubmitBtn' : null;
+  if (btnId) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px"></span> Submitting…';
+  }
+  try {
+    const res = await fetch(`/api/candidateForm?token=${encodeURIComponent(token)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ form, data, submit })
+    });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Save failed'); }
+    responses[form] = { data, submitted: submit };
+    renderProgress();
+    if (submit) {
+      const allDone = FORMS.every(f => responses[f]?.submitted);
+      if (allDone) { show('done'); return; }
+      const next = FORMS[FORMS.indexOf(form) + 1];
+      if (next) showForm(next);
+      toast('Form submitted ✓');
+    } else {
+      toast('Progress saved');
+    }
+  } catch (e) { toast(e.message || 'Failed to save, please try again', true); }
+  finally {
+    if (btnId) {
+      const btn = document.getElementById(btnId);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Submit All Forms'; }
+    }
+  }
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function toast(msg, err) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.style.background = err ? '#ef4444' : '#1e293b';
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 3000);
+}
+
+// ── Auto-set today's date on signature fields ────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  ['ed_sig_date','hq_sig_date','bd_sig_date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
+});
+</script>
+</body>
+</html>

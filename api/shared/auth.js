@@ -26,18 +26,20 @@ async function getTable(connStr, name) {
 }
 
 // Returns { status, error } on failure, or { email, name, isAdmin } for an
-// awschools.com account that is the admin or on the team list.
+// awschools.com account that is the admin or on the team list. Payroll users
+// (role "Payroll") only see payroll documents and the bank and employee details forms.
 async function requireStaff(req, connStr) {
   const principal = getPrincipal(req);
   if (!principal) return { status: 401, error: "Not authenticated" };
   const email = (principal.userDetails || "").toLowerCase();
   const name = getDisplayName(principal);
   if (!email.endsWith("@" + ALLOWED_DOMAIN)) return { status: 403, error: "School accounts only" };
-  if (email === ADMIN_EMAIL) return { email, name, isAdmin: true };
+  if (email === ADMIN_EMAIL) return { email, name, isAdmin: true, role: "Admin", isPayroll: false };
   try {
     const users = await getTable(connStr, "onboardingUsers");
-    await users.getEntity("users", encodeURIComponent(email));
-    return { email, name, isAdmin: false };
+    const u = await users.getEntity("users", encodeURIComponent(email));
+    const role = u.role || "Support Staff";
+    return { email, name, isAdmin: role === "Admin", role, isPayroll: role === "Payroll" };
   } catch(e) {
     if (e.statusCode === 404) return { status: 403, error: "Not on the team list" };
     throw e;

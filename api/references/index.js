@@ -17,6 +17,7 @@ module.exports = async function (context, req) {
   try {
     const me = await requireStaff(req, connStr);
     if (me.error) return reply(context, me.status, { error: me.error });
+    if (me.isPayroll) return reply(context, 403, { error: "Payroll users cannot see references" });
     const table = await refTable(connStr);
     const method = req.method.toUpperCase();
 

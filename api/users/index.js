@@ -2,7 +2,7 @@ const { TableClient } = require("@azure/data-tables");
 
 const ADMIN_EMAIL = "alicia.ennis@awschools.com";
 const ALLOWED_DOMAIN = "awschools.com";
-const VALID_ROLES = ["Admin", "HR Manager", "Senior Leader", "Line Manager", "Support Staff"];
+const VALID_ROLES = ["Admin", "HR Manager", "Senior Leader", "Line Manager", "Support Staff", "Payroll"];
 
 function getPrincipalEmail(req) {
   const header = req.headers["x-ms-client-principal"];

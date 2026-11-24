@@ -143,4 +143,27 @@ ${button(link, "Open the tracker")}`)
   };
 }
 
-module.exports = { esc, sendMail, mailConfigured, appUrl, notifyEmail, requestEmail, receivedEmail, overdueEmail };
+function candidateFormsEmail(name, link) {
+  return {
+    subject: `Your pre-employment forms for ${SCHOOL_NAME}`,
+    html: shell("Pre-employment forms", `
+<p style="margin:0 0 16px;">Dear ${esc(name)},</p>
+<p style="margin:0 0 16px;">Before you start with us, please complete three short forms online: your employee details and emergency contacts, a health questionnaire, and your bank details for pay.</p>
+<p style="margin:0 0 20px;">You don't need to log in. You can save your progress and come back to the same link at any time.</p>
+${button(link, "Complete my forms")}
+<p style="margin:0 0 16px;">If you have any questions, please reply to this email.</p>
+<p style="margin:0;">Kind regards,<br>${esc(senderName())}<br>${SCHOOL_NAME}</p>`)
+  };
+}
+
+function formsCompletedEmail(name, link) {
+  return {
+    subject: `Pre-employment forms completed by ${name}`,
+    html: shell("Forms completed", `
+<p style="margin:0 0 16px;"><strong>${esc(name)}</strong> has submitted all three pre-employment forms: employee details, health questionnaire and bank details.</p>
+<p style="margin:0 0 20px;">They have been ticked off on the checklist and can be viewed in the Staff Onboarding Tracker.</p>
+${button(link, "Open the tracker")}`)
+  };
+}
+
+module.exports = { esc, sendMail, candidateFormsEmail, formsCompletedEmail, mailConfigured, appUrl, notifyEmail, requestEmail, receivedEmail, overdueEmail };

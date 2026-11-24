@@ -553,6 +553,39 @@
     .notif.show { opacity: 1; }
     .notif.error { background: #dc2626; }
 
+    /* ── Dashboard tabs ── */
+    .dash-tabs { display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--grey-200); }
+    .dash-tab { background: none; border: none; padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--grey-600); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+    .dash-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .dash-tab .n { background: var(--grey-100); border-radius: 999px; padding: 1px 8px; margin-left: 6px; font-size: 11px; }
+    .completed-banner { background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; font-weight: 600; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .completed-banner .btn { margin-left: auto; padding: 6px 12px; font-size: 12px; }
+
+    /* ── Candidate forms and payroll ── */
+    .cf-row { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-top: 1px solid var(--grey-100); font-size: 13px; flex-wrap: wrap; }
+    .cf-row .cf-name { flex: 1; font-weight: 600; color: var(--grey-800); min-width: 160px; }
+    .cf-row .btn { padding: 5px 11px; font-size: 12px; }
+    .cf-send { display: flex; gap: 8px; padding: 14px 20px; flex-wrap: wrap; align-items: center; }
+    .cf-send input { flex: 1; min-width: 200px; padding: 8px 10px; border: 1px solid var(--grey-300); border-radius: 7px; font-size: 13px; }
+    .cf-send .btn { padding: 8px 14px; font-size: 12px; }
+    .cf-meta { padding: 0 20px 12px; font-size: 12px; color: var(--grey-600); }
+    .doc-link { background: none; border: none; color: var(--primary); font-weight: 700; font-size: 11px; cursor: pointer; text-decoration: underline; margin-left: 6px; }
+    .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 20px 20px; }
+    .pay-slot { border: 1px solid var(--grey-200); border-radius: 10px; padding: 14px; background: var(--grey-50); }
+    .pay-slot h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+    .pay-file { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 7px 0; border-top: 1px solid var(--grey-200); flex-wrap: wrap; }
+    .pay-file a { color: var(--primary); font-weight: 600; word-break: break-all; flex: 1; min-width: 120px; }
+    .pay-file .meta { color: var(--grey-400); width: 100%; }
+    .pay-upload { margin-top: 10px; }
+    .pay-upload label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--grey-300); font-size: 12px; font-weight: 600; cursor: pointer; color: var(--grey-700); }
+    .pay-upload input { display: none; }
+    .rv-yn { padding: 7px 0; border-top: 1px solid var(--grey-100); font-size: 13px; }
+    .rv-yn .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 4px; margin-right: 8px; }
+    .rv-yn .yes { background: #fee2e2; color: #991b1b; }
+    .rv-yn .no { background: var(--success-bg); color: var(--success); }
+    .rv-yn .det { color: var(--grey-600); margin-top: 4px; white-space: pre-wrap; }
+    @media (max-width: 760px) { .pay-grid { grid-template-columns: 1fr; } }
+
     /* ── Start date priority ── */
     .card-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
     .chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
@@ -668,7 +701,7 @@
   <div class="topbar-user">
     <span class="user-chip" id="userChip"></span>
     <a id="adminLink" href="/admin.html" class="btn btn-ghost" style="display:none;font-size:12px">⚙ Admin</a>
-    <button class="btn btn-ghost" onclick="openModal()">+ Add Staff Member</button>
+    <button class="btn btn-ghost" id="addStaffBtn" onclick="openModal()">+ Add Staff Member</button>
     <a class="btn btn-ghost" style="font-size:12px" href="/.auth/logout">Sign Out</a>
   </div>
 </header>
@@ -677,6 +710,7 @@
 <div class="view" id="viewDashboard" style="display:none">
   <div class="dashboard">
     <div class="dash-stats" id="dashStats"></div>
+    <div class="dash-tabs" id="dashTabs"></div>
     <div class="dash-section-title" id="dashSectionTitle"></div>
     <div class="staff-grid" id="staffGrid"></div>
   </div>
@@ -686,7 +720,7 @@
 <div class="view" id="viewDetail">
   <div class="detail-header">
     <button class="btn btn-secondary" onclick="showDashboard()">← Back</button>
-    <button class="btn btn-secondary" onclick="openEditModal(null, state.selectedId)">✎ Edit Details</button>
+    <button class="btn btn-secondary" id="editDetailsBtn" onclick="openEditModal(null, state.selectedId)">✎ Edit Details</button>
     <div class="detail-header-info">
       <h2 id="detailName"></h2>
       <div class="detail-header-meta" id="detailMeta"></div>
@@ -716,6 +750,10 @@
     <div class="form-group">
       <label>Start Date</label>
       <input type="date" id="inputStart" />
+    </div>
+    <div class="form-group">
+      <label>Candidate's personal email</label>
+      <input type="email" id="inputEmail" placeholder="For sending their pre-employment forms" />
     </div>
     <div class="form-group">
       <label>Role Type <span style="font-weight:400;text-transform:none;color:var(--grey-400)">(select all that apply)</span></label>
@@ -751,6 +789,7 @@
 </div>
 
 <script src="reference-form.js"></script>
+<script src="candidate-form-defs.js"></script>
 <script>
 // ── Auth ──
 async function init() {
@@ -778,6 +817,11 @@ async function init() {
 
     document.getElementById('userChip').textContent = user.name || user.email;
     if (user.isAdmin) document.getElementById('adminLink').style.display = 'inline-flex';
+    state.me = user;
+    if (isPayroll()) {
+      document.getElementById('addStaffBtn').style.display = 'none';
+      document.getElementById('editDetailsBtn').style.display = 'none';
+    }
 
     showScreen('app');
     await loadData();
@@ -815,12 +859,14 @@ function notify(msg, isError) {
 }
 
 // ── Data ──
-let state = { staff: [], refs: [], selectedId: null };
+let state = { staff: [], refs: [], selectedId: null, me: {}, dashTab: 'active' };
+
+function isPayroll() { return state.me && state.me.role === 'Payroll'; }
 
 async function loadData() {
   const [records, refs] = await Promise.all([
     apiCall('GET', '/api/onboarding'),
-    apiCall('GET', '/api/references').catch(() => [])
+    isPayroll() ? Promise.resolve([]) : apiCall('GET', '/api/references').catch(() => [])
   ]);
   state.staff = Array.isArray(records) ? records : [];
   state.refs  = Array.isArray(refs) ? refs : [];
@@ -912,9 +958,16 @@ function getTotalDocs(person) {
   return SECTIONS.reduce((acc, sec) => acc + sec.items.filter(i => isApplicable(i, person)).length, 0);
 }
 
+function formDone(person, itemId) {
+  const f = FORM_FOR_ITEM[itemId];
+  return !!(f && person.forms?.[f]?.submitted);
+}
+
+function isDocDone(person, item) { return !!person.docs?.[item.id]?.checked || formDone(person, item.id); }
+
 function countDocs(person) {
   return SECTIONS.reduce((acc, sec) =>
-    acc + sec.items.filter(i => isApplicable(i, person) && person.docs?.[i.id]?.checked).length, 0);
+    acc + sec.items.filter(i => isApplicable(i, person) && isDocDone(person, i)).length, 0);
 }
 
 function initials(name) {
@@ -949,14 +1002,14 @@ function isComplete(p) { const t = getTotalDocs(p); return t > 0 && countDocs(p)
 // 'urgent' = starts within 7 days (or has started) with checks outstanding, 'soon' = within 21 days
 function urgency(p) {
   const d = daysUntil(p.startDate);
-  if (d === null || isComplete(p)) return '';
+  if (d === null || isComplete(p) || p.completedAt) return '';
   return d <= 7 ? 'urgent' : d <= 21 ? 'soon' : '';
 }
 
 function startChip(p) {
   const d = daysUntil(p.startDate);
   if (d === null) return '<span class="chip chip-grey">No start date</span>';
-  if (isComplete(p)) return `<span class="chip chip-grey">${d < 0 ? 'Started' : 'Starts'} ${fmtDate(p.startDate)}</span>`;
+  if (isComplete(p) || p.completedAt) return `<span class="chip chip-grey">${d < 0 ? 'Started' : 'Starts'} ${fmtDate(p.startDate)}</span>`;
   const u = urgency(p);
   const cls = u === 'urgent' ? 'chip-red' : u === 'soon' ? 'chip-amber' : 'chip-grey';
   const txt = d < 0 ? `Started ${-d} day${d === -1 ? '' : 's'} ago` : d === 0 ? 'Starts today' : d === 1 ? 'Starts tomorrow' : `Starts in ${d} days`;
@@ -984,12 +1037,23 @@ function refChip(personId) {
 }
 
 // ── Dashboard ──
+function renderTabs(active, completed) {
+  document.getElementById('dashTabs').innerHTML = [['active', 'In progress', active], ['completed', 'Onboarding completed', completed]]
+    .map(([k, l, n]) => `<button class="dash-tab${state.dashTab === k ? ' active' : ''}" onclick="state.dashTab='${k}';renderDashboard()">${l}<span class="n">${n}</span></button>`).join('');
+}
+
 function renderDashboard() {
-  const total    = state.staff.length;
-  const complete = state.staff.filter(isComplete).length;
-  const inProg   = state.staff.filter(p => countDocs(p) > 0 && !isComplete(p)).length;
-  const notStart = state.staff.filter(p => countDocs(p) === 0).length;
-  const soon     = state.staff.filter(p => urgency(p) === 'urgent' || (urgency(p) === 'soon' && daysUntil(p.startDate) <= 14)).length;
+  const all = state.staff;
+  const activeStaff = all.filter(p => !p.completedAt);
+  const doneStaff = all.filter(p => p.completedAt).sort((a, b) => b.completedAt.localeCompare(a.completedAt));
+  renderTabs(activeStaff.length, doneStaff.length);
+  if (isPayroll()) return renderPayrollDashboard(state.dashTab === 'completed' ? doneStaff : sortedStaff().filter(p => !p.completedAt));
+  const viewing = state.dashTab === 'completed';
+  const total    = all.length;
+  const complete = doneStaff.length;
+  const inProg   = activeStaff.filter(p => countDocs(p) > 0).length;
+  const notStart = activeStaff.filter(p => countDocs(p) === 0).length;
+  const soon     = activeStaff.filter(p => urgency(p) === 'urgent' || (urgency(p) === 'soon' && daysUntil(p.startDate) <= 14)).length;
   const refsOpen = state.refs.filter(r => r.status === 'requested' || r.status === 'received').length;
   const refsOverdue = state.refs.filter(r => r.status === 'requested' && r.overdueAt).length;
 
@@ -1000,7 +1064,7 @@ function renderDashboard() {
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="background:#ecfdf5">✅</div>
-      <div class="stat-body"><div class="num">${complete}</div><div class="lbl">Fully Onboarded</div></div>
+      <div class="stat-body"><div class="num">${complete}</div><div class="lbl">Onboarding Completed</div></div>
     </div>
     <div class="stat-card">
       <div class="stat-icon" style="background:#fffbeb">⏳</div>
@@ -1020,11 +1084,14 @@ function renderDashboard() {
     </div>`;
 
   const titleEl = document.getElementById('dashSectionTitle');
-  titleEl.textContent = total ? `All Staff Members (${total}), soonest start date first` : '';
+  titleEl.textContent = viewing ? (doneStaff.length ? 'Completed onboarding, most recent first' : '') : (activeStaff.length ? 'Soonest start date first' : '');
 
   const grid = document.getElementById('staffGrid');
-  if (!total) {
-    grid.innerHTML = `
+  const list = viewing ? doneStaff : sortedStaff().filter(p => !p.completedAt);
+  if (!list.length) {
+    grid.innerHTML = viewing
+      ? '<div class="empty-grid"><div class="icon">✅</div><h3>No completed onboarding yet</h3><p>Open a staff member and click "Mark onboarding complete" when they are done</p></div>'
+      : `
       <div class="empty-grid">
         <div class="icon">📋</div>
         <h3>No staff members yet</h3>
@@ -1033,7 +1100,7 @@ function renderDashboard() {
     return;
   }
 
-  grid.innerHTML = sortedStaff().map(person => {
+  grid.innerHTML = list.map(person => {
     const done  = countDocs(person);
     const total = getTotalDocs(person);
     const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -1054,7 +1121,7 @@ function renderDashboard() {
         </div>
         <div class="staff-card-name">${esc(person.name)}</div>
         <div class="staff-card-role">${esc(person.role || 'No role specified')}</div>
-        <div class="card-chips">${startChip(person)}${refChip(person.id)}</div>
+        <div class="card-chips">${person.completedAt ? `<span class="chip chip-green">Completed ${fmtShort(person.completedAt)}</span>` : startChip(person) + refChip(person.id) + formsChip(person)}</div>
         ${tags ? `<div class="role-tags">${tags}</div>` : ''}
         <div class="card-progress-track">
           <div class="card-progress-fill${done === total && total > 0 ? ' complete' : ''}" style="width:${pct}%"></div>
@@ -1085,10 +1152,24 @@ function renderDetail() {
     (tags ? `<span class="role-tags" style="margin:0">${tags}</span>` : '');
 
   updateProgress();
+  document.querySelector('.progress-bar-wrap').style.display = isPayroll() ? 'none' : '';
 
-  document.getElementById('detailBody').innerHTML = referencesCard(person) + SECTIONS.map(sec => {
+  if (isPayroll()) {
+    document.getElementById('detailBody').innerHTML = payrollCard(person) + candidateFormsCard(person);
+    loadPayrollDocs(person.id);
+    return;
+  }
+
+  const banner = person.completedAt
+    ? `<div class="completed-banner">✓ Onboarding completed ${fmtDate(person.completedAt)}${person.completedBy ? ' by ' + esc(person.completedBy) : ''}
+        <button class="btn btn-outline" onclick="setCompleted(false)">Move back to in progress</button></div>`
+    : `<div class="completed-banner" style="background:#fff;color:var(--grey-700);border-color:var(--grey-200)">
+        ${isComplete(person) ? 'All checks are done.' : `${getTotalDocs(person) - countDocs(person)} items still outstanding.`}
+        <button class="btn btn-primary" onclick="setCompleted(true)">Mark onboarding complete</button></div>`;
+
+  document.getElementById('detailBody').innerHTML = banner + candidateFormsCard(person) + referencesCard(person) + payrollCard(person) + SECTIONS.map(sec => {
     const applicable = sec.items.filter(i => isApplicable(i, person));
-    const secDone    = applicable.filter(i => person.docs?.[i.id]?.checked).length;
+    const secDone    = applicable.filter(i => isDocDone(person, i)).length;
     return `
       <div class="section-card" id="sec-${sec.id}">
         <div class="section-header" onclick="toggleSection('${sec.id}')">
@@ -1103,30 +1184,36 @@ function renderDetail() {
           </div>
           ${sec.items.map(item => {
             const ok  = isApplicable(item, person);
-            const d   = person.docs?.[item.id] || {};
+            const online = ok && formDone(person, item.id);
+            const fId = FORM_FOR_ITEM[item.id];
+            const d   = online
+              ? { checked: true, date: (person.forms[fId].submittedAt || '').slice(0, 10), checkedBy: 'Candidate (online form)' }
+              : (person.docs?.[item.id] || {});
             const cls = !ok ? ' na' : d.checked ? ' checked' : '';
             return `
               <div class="doc-row${cls}" id="row-${item.id}">
                 <input type="checkbox" class="doc-checkbox"
-                  ${d.checked ? 'checked' : ''} ${!ok ? 'disabled' : ''}
+                  ${d.checked ? 'checked' : ''} ${!ok || online ? 'disabled' : ''}
                   onchange="toggleDoc('${item.id}', this.checked)" />
                 <span class="doc-label">
                   ${esc(item.label)}
                   ${!ok
                     ? '<span class="na-badge">N/A</span>'
                     : item.note ? `<span class="doc-tag">${esc(item.note)}</span>` : ''}
+                  ${online ? `<span class="doc-tag">Completed online</span><button class="doc-link" onclick="openCandidateForm('${fId}')">View</button>` : ''}
                 </span>
                 <input type="date" class="doc-date-input"
-                  value="${d.date || ''}" ${!ok ? 'disabled' : ''}
+                  value="${d.date || ''}" ${!ok || online ? 'disabled' : ''}
                   onchange="updateDocField('${item.id}', 'date', this.value)" />
                 <input type="text" class="doc-checked-by"
-                  value="${esc(d.checkedBy || '')}" placeholder="${ok ? 'Name...' : ''}" ${!ok ? 'disabled' : ''}
+                  value="${esc(d.checkedBy || '')}" placeholder="${ok ? 'Name...' : ''}" ${!ok || online ? 'disabled' : ''}
                   oninput="updateDocField('${item.id}', 'checkedBy', this.value)" />
               </div>`;
           }).join('')}
         </div>
       </div>`;
   }).join('');
+  loadPayrollDocs(person.id);
 }
 
 // ── References ──
@@ -1371,6 +1458,246 @@ async function approveRef(id) {
   } catch (e) { notify(e.message, true); }
 }
 
+// ── Candidate pre-employment forms ──
+const FORM_KEYS = Object.keys(CANDIDATE_FORMS);
+
+function formsChip(person) {
+  const n = FORM_KEYS.filter(f => person.forms?.[f]?.submitted).length;
+  if (n === FORM_KEYS.length) return '<span class="chip chip-green">Forms done</span>';
+  if (person.formsSentAt || n) return `<span class="chip chip-amber">Forms ${n} of ${FORM_KEYS.length}</span>`;
+  return '';
+}
+
+function formStatus(person, f) {
+  const st = person.forms?.[f];
+  if (st?.submitted) return `<span class="chip chip-green">Submitted ${fmtShort(st.submittedAt)}</span>`;
+  if (st?.savedAt) return `<span class="chip chip-amber">Started, not submitted</span>`;
+  return '<span class="chip chip-grey">Not started</span>';
+}
+
+function candidateFormsCard(person) {
+  const keys = isPayroll() ? PAYROLL_FORMS : FORM_KEYS;
+  const rows = keys.map(f => {
+    const st = person.forms?.[f] || {};
+    const actions = [
+      st.submitted || st.savedAt ? `<button class="btn btn-outline" onclick="openCandidateForm('${f}')">View</button>` : '',
+      !isPayroll() && st.submitted ? `<button class="btn btn-danger-text" onclick="reopenForm('${f}')">Let them edit</button>` : ''
+    ].join('');
+    return `<div class="cf-row"><span class="cf-name">${esc(CANDIDATE_FORMS[f].title)}</span>${formStatus(person, f)}${actions}</div>`;
+  }).join('');
+  const send = isPayroll() ? '' : `
+        <div class="cf-send">
+          <input type="text" id="cfEmail" inputmode="email" placeholder="Candidate's personal email" value="${esc(person.candidateEmail || '')}" onkeydown="if(event.key==='Enter')sendCandidateForms()" />
+          <button class="btn btn-primary" onclick="sendCandidateForms()">${person.formsSentAt ? 'Send link again' : 'Email the forms link'}</button>
+          <button class="btn btn-outline" onclick="copyCandidateLink()">Copy link</button>
+        </div>
+        <div class="cf-meta">${person.formsSentAt ? `Link emailed ${fmtShort(person.formsSentAt)}. ` : ''}The candidate fills in their employee details, health questionnaire and bank details online. Each one ticks itself off below when submitted.</div>`;
+  return `
+    <div class="section-card" id="sec-candidate">
+      <div class="section-header" onclick="toggleSection('candidate')">
+        <div class="section-icon" style="background:#f0fdf4">📝</div>
+        <span class="section-title">${isPayroll() ? 'Candidate Forms' : 'Candidate Pre-Employment Forms'}</span>
+        <span class="section-count">${keys.filter(f => person.forms?.[f]?.submitted).length} / ${keys.length} submitted</span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-items">${send}${rows}</div>
+    </div>`;
+}
+
+async function sendCandidateForms() {
+  const person = getSelected();
+  const raw = document.getElementById('cfEmail').value.trim();
+  const m = raw.match(/[^\s<>"'(),;:]+@[^\s<>"'(),;:]+\.[^\s<>"'(),;:]+/);
+  if (!m) { notify("Enter the candidate's email address", true); document.getElementById('cfEmail').focus(); return; }
+  try {
+    const res = await fetch('/api/candidateForms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'send', staffId: person.id, email: m[0] }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Could not send');
+    person.candidateEmail = d.candidateEmail; person.formsSentAt = d.formsSentAt;
+    notify(d.emailError ? 'Email could not be sent. Use Copy link instead.' : 'Forms link emailed to ' + d.candidateEmail, !!d.emailError);
+    renderDetail();
+  } catch (e) { notify(e.message, true); }
+}
+
+async function copyCandidateLink() {
+  const person = getSelected();
+  try {
+    const res = await fetch('/api/candidateForms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'link', staffId: person.id }) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Could not get the link');
+    try { await navigator.clipboard.writeText(d.link); notify('Link copied. Only send it to the candidate.'); }
+    catch { prompt('Copy this link and send it to the candidate only:', d.link); }
+  } catch (e) { notify(e.message, true); }
+}
+
+async function reopenForm(f) {
+  if (!confirm(`Let the candidate change their ${CANDIDATE_FORMS[f].title}? It will be unticked until they submit it again.`)) return;
+  const person = getSelected();
+  try {
+    const res = await fetch('/api/candidateForms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reopen', staffId: person.id, form: f }) });
+    if (!res.ok) throw new Error((await res.json()).error || 'Could not reopen');
+    person.forms[f] = { ...person.forms[f], submitted: false, submittedAt: '' };
+    renderDetail(); notify('The candidate can now edit that form using the same link');
+  } catch (e) { notify(e.message, true); }
+}
+
+async function openCandidateForm(f) {
+  const person = getSelected();
+  const box = document.getElementById('refViewer');
+  box.innerHTML = '<div class="rv-body" style="padding:40px;text-align:center"><div class="spinner"></div></div>';
+  document.getElementById('refOverlay').classList.add('open');
+  try {
+    const res = await fetch(`/api/candidateForms?staffId=${encodeURIComponent(person.id)}&form=${f}`);
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Could not load the form');
+    box.innerHTML = candidateFormHtml(person, f, d);
+  } catch (e) { closeRef(); notify(e.message, true); }
+}
+
+function candidateFormHtml(person, f, d) {
+  const def = CANDIDATE_FORMS[f];
+  const a = d.data || {};
+  const val = (v, type) => type === 'date' && v ? fmtDate(v) : v;
+  const qa = (label, v) => `<div class="rv-q"><div class="q">${esc(label)}</div><div class="a${v ? '' : ' blank'}">${v ? esc(v) : 'Not answered'}</div></div>`;
+  const body = def.sections.map(([title, fields]) => `
+    <div class="rv-sec"><h5>${esc(title)}</h5>
+      ${fields === 'health'
+        ? HEALTH_QUESTIONS.map((q, i) => {
+            const yes = a['yn_ans_' + i] === 'yes';
+            return `<div class="rv-yn"><span class="pill ${yes ? 'yes' : 'no'}">${yes ? 'YES' : 'NO'}</span>${i + 1}. ${esc(q)}${yes && a['yn_det_' + i] ? `<div class="det">${esc(a['yn_det_' + i])}</div>` : ''}</div>`;
+          }).join('')
+        : fields.map(([id, label, type]) => qa(label, val(a[id], type))).join('')}
+    </div>`).join('');
+  return `
+    <div class="rv-head">
+      <h3>${esc(def.title)}
+        <div class="rv-meta">${esc(person.name)} · ${d.submitted ? 'Submitted ' + fmtDate(d.submittedAt) : 'Not submitted yet (saved ' + fmtDate(d.savedAt) + ')'}</div>
+      </h3>
+      <button class="btn btn-outline no-print" onclick="printRef()">Print / PDF</button>
+      <button class="btn btn-secondary no-print" onclick="closeRef()">Close</button>
+    </div>
+    <div class="rv-body">${d.data ? body : '<p style="padding:20px 0;color:var(--grey-600)">The candidate hasn\'t started this form yet.</p>'}</div>`;
+}
+
+// ── Onboarding completed ──
+async function setCompleted(done) {
+  const person = getSelected();
+  if (done && !isComplete(person) && !confirm(`${getTotalDocs(person) - countDocs(person)} checklist items are still outstanding. Mark ${person.name}'s onboarding as complete anyway?`)) return;
+  try {
+    const d = await apiCall('POST', '/api/onboarding', { action: done ? 'complete' : 'reopen', id: person.id });
+    if (!d || d.error) throw new Error(d?.error || 'Could not save');
+    person.completedAt = d.completedAt; person.completedBy = d.completedBy;
+    notify(done ? 'Moved to Onboarding completed' : 'Moved back to in progress');
+    renderDetail();
+  } catch (e) { notify(e.message, true); }
+}
+
+// ── Payroll documents ──
+const PAYROLL_TYPES = { p45: 'P45', starter: 'New starter checklist' };
+let payrollDocs = [];
+
+function payrollCard(person) {
+  return `
+    <div class="section-card" id="sec-payroll">
+      <div class="section-header" onclick="toggleSection('payroll')">
+        <div class="section-icon" style="background:#fef3c7">💷</div>
+        <span class="section-title">Payroll Documents</span>
+        <span class="section-count" id="payrollCount"></span>
+        <span class="section-chevron">▼</span>
+      </div>
+      <div class="section-items">
+        <p class="refs-intro">Upload the P45 and new starter checklist here. Payroll can view and download them.</p>
+        <div class="pay-grid" id="payrollGrid"><div style="color:var(--grey-400);font-size:13px">Loading...</div></div>
+      </div>
+    </div>`;
+}
+
+async function loadPayrollDocs(staffId) {
+  try {
+    const res = await fetch('/api/payrollDocs?staffId=' + encodeURIComponent(staffId));
+    payrollDocs = res.ok ? await res.json() : [];
+  } catch { payrollDocs = []; }
+  if (state.selectedId === staffId) renderPayrollGrid(staffId);
+}
+
+function renderPayrollGrid(staffId) {
+  const grid = document.getElementById('payrollGrid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(PAYROLL_TYPES).map(([type, label]) => {
+    const files = payrollDocs.filter(d => d.type === type);
+    return `
+      <div class="pay-slot">
+        <h4>${label} ${files.length ? '<span class="chip chip-green">Uploaded</span>' : '<span class="chip chip-grey">Not uploaded</span>'}</h4>
+        ${files.map(d => `
+          <div class="pay-file">
+            <a href="/api/payrollDocs?staffId=${encodeURIComponent(staffId)}&id=${d.id}" target="_blank" rel="noopener">${esc(d.fileName)}</a>
+            <a href="/api/payrollDocs?staffId=${encodeURIComponent(staffId)}&id=${d.id}&download=1" style="flex:0">Download</a>
+            <button class="btn btn-danger-text" style="padding:2px 8px;font-size:11px" onclick="deletePayrollDoc('${d.id}')">Remove</button>
+            <span class="meta">${Math.max(1, Math.round(d.size / 1024))} KB · added ${fmtShort(d.uploadedAt)} by ${esc(d.uploadedBy)}</span>
+          </div>`).join('')}
+        <div class="pay-upload">
+          <label>⬆ Upload ${files.length ? 'another' : 'file'}<input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="uploadPayrollDoc('${type}', this)" /></label>
+        </div>
+      </div>`;
+  }).join('');
+  const cnt = document.getElementById('payrollCount');
+  if (cnt) cnt.textContent = `${Object.keys(PAYROLL_TYPES).filter(t => payrollDocs.some(d => d.type === t)).length} / 2 uploaded`;
+}
+
+function uploadPayrollDoc(type, input) {
+  const file = input.files[0];
+  input.value = '';
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { notify('Files must be 10MB or smaller', true); return; }
+  const person = getSelected();
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      notify('Uploading ' + file.name + '...');
+      const contentType = file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : '');
+      const res = await fetch('/api/payrollDocs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ staffId: person.id, type, fileName: file.name, contentType, data: String(reader.result).split(',')[1] }) });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || 'Upload failed');
+      payrollDocs.push(d);
+      person.payroll = { ...(person.payroll || {}), [type]: ((person.payroll || {})[type] || 0) + 1 };
+      renderPayrollGrid(person.id);
+      notify(PAYROLL_TYPES[type] + ' uploaded');
+    } catch (e) { notify(e.message, true); }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deletePayrollDoc(id) {
+  const person = getSelected();
+  const d = payrollDocs.find(x => x.id === id);
+  if (!d || !confirm(`Remove ${d.fileName}? This can't be undone.`)) return;
+  try {
+    const res = await fetch(`/api/payrollDocs?staffId=${encodeURIComponent(person.id)}&id=${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Could not remove the file');
+    payrollDocs = payrollDocs.filter(x => x.id !== id);
+    if (person.payroll?.[d.type]) person.payroll[d.type]--;
+    renderPayrollGrid(person.id);
+    notify('File removed');
+  } catch (e) { notify(e.message, true); }
+}
+
+// ── Payroll users' dashboard ──
+function renderPayrollDashboard(list) {
+  const ok = (on, label) => `<span class="chip ${on ? 'chip-green' : 'chip-grey'}">${on ? '✓ ' : ''}${label}</span>`;
+  document.getElementById('dashStats').innerHTML = '';
+  document.getElementById('dashSectionTitle').textContent = list.length ? 'Payroll documents and forms for each new starter' : '';
+  const grid = document.getElementById('staffGrid');
+  if (!list.length) { grid.innerHTML = '<div class="empty-grid"><div class="icon">💷</div><h3>Nobody here yet</h3></div>'; return; }
+  grid.innerHTML = list.map(p => `
+    <div class="staff-card" onclick="showDetail('${p.id}')">
+      <div class="staff-card-top"><div class="staff-avatar">${esc(initials(p.name))}</div></div>
+      <div class="staff-card-name">${esc(p.name)}</div>
+      <div class="staff-card-role">${esc(p.role || '')}${p.startDate ? ' · Starts ' + fmtDate(p.startDate) : ''}</div>
+      <div class="card-chips">${ok(p.payroll?.p45, 'P45')}${ok(p.payroll?.starter, 'Starter checklist')}${ok(p.forms?.bank_details?.submitted, 'Bank details')}${ok(p.forms?.employee_details?.submitted, 'Employee details')}</div>
+    </div>`).join('');
+}
+
 // ── Actions ──
 // Debounce timer for saving doc changes
 const _saveTimers = {};
@@ -1426,7 +1753,7 @@ function updateProgress() {
     const card = document.getElementById('sec-' + sec.id);
     if (!card) return;
     const applicable = sec.items.filter(i => isApplicable(i, person));
-    const secDone    = applicable.filter(i => person.docs?.[i.id]?.checked).length;
+    const secDone    = applicable.filter(i => isDocDone(person, i)).length;
     const cnt = card.querySelector('.section-count');
     if (cnt) cnt.textContent = `${secDone} / ${applicable.length}`;
   });
@@ -1464,6 +1791,7 @@ function openEditModal(e, id) {
   document.getElementById('inputName').value  = person.name;
   document.getElementById('inputRole').value  = person.role || '';
   document.getElementById('inputStart').value = person.startDate || '';
+  document.getElementById('inputEmail').value = person.candidateEmail || '';
   ['Mgmt','Teach'].forEach(t => {
     document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
     document.getElementById('check'  + t).textContent = '';
@@ -1492,7 +1820,7 @@ function openModal() {
   editingId = null;
   document.getElementById('modalTitle').textContent   = 'Add New Staff Member';
   document.getElementById('modalSaveBtn').textContent = 'Add Staff Member';
-  ['inputName','inputRole','inputStart'].forEach(id => document.getElementById(id).value = '');
+  ['inputName','inputRole','inputStart','inputEmail'].forEach(id => document.getElementById(id).value = '');
   ['Mgmt','Teach'].forEach(t => {
     document.getElementById('toggle' + t).classList.remove('selected-mgmt','selected-teach');
     document.getElementById('check'  + t).textContent = '';
@@ -1509,6 +1837,7 @@ async function saveStaff() {
   const name         = document.getElementById('inputName').value.trim();
   const role         = document.getElementById('inputRole').value.trim();
   const start        = document.getElementById('inputStart').value;
+  const candidateEmail = document.getElementById('inputEmail').value.trim();
   const isManagement = document.getElementById('toggleMgmt').classList.contains('selected-mgmt');
   const isTeaching   = document.getElementById('toggleTeach').classList.contains('selected-teach');
   if (!name) { document.getElementById('inputName').focus(); return; }
@@ -1520,10 +1849,10 @@ async function saveStaff() {
     if (editingId) {
       const person = state.staff.find(s => s.id === editingId);
       if (person) {
-        person.name = name; person.role = role; person.startDate = start;
+        person.name = name; person.role = role; person.startDate = start; person.candidateEmail = candidateEmail;
         person.isManagement = isManagement; person.isTeaching = isTeaching;
         await apiCall('PUT', '/api/onboarding', {
-          id: person.id, name, role, startDate: start,
+          id: person.id, name, role, startDate: start, candidateEmail,
           isManagement, isTeaching, docs: person.docs || {}
         });
       }
@@ -1531,8 +1860,8 @@ async function saveStaff() {
       if (state.selectedId === editingId) renderDetail(); else renderDashboard();
     } else {
       const id = Date.now().toString();
-      await apiCall('POST', '/api/onboarding', { id, name, role, startDate: start, isManagement, isTeaching });
-      state.staff.push({ id, name, role, startDate: start, isManagement, isTeaching, docs: {} });
+      await apiCall('POST', '/api/onboarding', { id, name, role, startDate: start, isManagement, isTeaching, candidateEmail });
+      state.staff.push({ id, name, role, startDate: start, isManagement, isTeaching, candidateEmail, docs: {}, forms: {}, payroll: {} });
       closeModal();
       renderDashboard();
     }
